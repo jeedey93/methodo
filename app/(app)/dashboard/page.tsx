@@ -80,7 +80,7 @@ export default async function DashboardPage() {
       take: 5,
       select: { id: true, title: true, type: true, updatedAt: true },
     }),
-    prisma.sharedResource.count({ where: { isPublished: true } }),
+    prisma.sharedResource.count({ where: { isPublished: true, isAiGenerated: false } }),
   ])
 
   const firstName = profile?.firstName ?? 'Enseignant'
@@ -178,7 +178,11 @@ export default async function DashboardPage() {
       <div className="rounded-xl border border-teal-100 bg-gradient-to-r from-teal-50 to-cyan-50 px-6 py-5 flex items-center justify-between gap-4">
         <div>
           <p className="font-semibold text-teal-900 text-sm">Partagez avec la communauté</p>
-          <p className="text-xs text-teal-700 mt-0.5">Vos collègues ont partagé {communityCount} ressources. À votre tour&nbsp;?</p>
+          <p className="text-xs text-teal-700 mt-0.5">
+            {communityCount > 0
+              ? `${communityCount} ressource${communityCount > 1 ? 's' : ''} partagée${communityCount > 1 ? 's' : ''} par des collègues. À votre tour ?`
+              : 'Soyez le premier à partager du matériel avec la communauté !'}
+          </p>
         </div>
         <Link href="/communaute"
           className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-white px-4 py-2 text-sm font-semibold text-teal-700 hover:bg-teal-50 transition-all shadow-sm">
