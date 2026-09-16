@@ -96,11 +96,19 @@ function Minuterie() {
 
 // ─── Sélecteur d'élève ────────────────────────────────────────────────────────
 
-function SelecteurEleve() {
-  const [input, setInput] = useState('')
+function SelecteurEleve({ classNames }: { classNames: string[] }) {
   const [names, setNames] = useState<string[]>([])
+  const [input, setInput] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const [spinning, setSpinning] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!loaded && classNames.length > 0) {
+      setNames(classNames)
+      setLoaded(true)
+    }
+  }, [classNames, loaded])
 
   const addNames = () => {
     const newNames = input.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 0)
@@ -120,9 +128,16 @@ function SelecteurEleve() {
 
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-5 space-y-4">
-      <div className="flex items-center gap-2">
-        <Users className="h-4 w-4 text-blue-600" />
-        <h2 className="font-semibold text-stone-900">Sélecteur d&apos;élève</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-blue-600" />
+          <h2 className="font-semibold text-stone-900">Sélecteur d&apos;élève</h2>
+        </div>
+        {classNames.length > 0 && names.length === 0 && (
+          <button onClick={() => setNames(classNames)} className="text-xs text-blue-600 hover:underline">
+            Charger ma classe
+          </button>
+        )}
       </div>
       {(selected || spinning) && (
         <div className={`rounded-xl bg-blue-50 border-2 border-blue-200 p-6 text-center ${spinning ? 'opacity-70' : ''}`}>
@@ -133,7 +148,7 @@ function SelecteurEleve() {
       <div className="space-y-2">
         <textarea value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addNames() } }}
-          placeholder="Un nom par ligne..." rows={3}
+          placeholder="Ajouter des noms..." rows={2}
           className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none resize-none" />
         <Button size="sm" variant="outline" onClick={addNames} className="w-full">Ajouter</Button>
       </div>
@@ -287,12 +302,20 @@ function Des() {
 
 const WHEEL_COLORS = ['#2563eb', '#16a34a', '#dc2626', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#65a30d']
 
-function RoueChance() {
+function RoueChance({ classNames }: { classNames: string[] }) {
   const [input, setInput] = useState('')
   const [names, setNames] = useState<string[]>([])
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [winner, setWinner] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!loaded && classNames.length > 0) {
+      setNames(classNames)
+      setLoaded(true)
+    }
+  }, [classNames, loaded])
 
   const addNames = () => {
     const newNames = input.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 0)
@@ -410,11 +433,19 @@ function AffichageConsignes() {
 
 // ─── Générateur de groupes ────────────────────────────────────────────────────
 
-function GenerateurGroupes() {
+function GenerateurGroupes({ classNames }: { classNames: string[] }) {
   const [input, setInput] = useState('')
   const [names, setNames] = useState<string[]>([])
   const [groupCount, setGroupCount] = useState(3)
   const [groups, setGroups] = useState<string[][]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!loaded && classNames.length > 0) {
+      setNames(classNames)
+      setLoaded(true)
+    }
+  }, [classNames, loaded])
 
   const addNames = () => {
     const newNames = input.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 0)
@@ -784,6 +815,16 @@ const TABS = [
 
 export default function ClassePage() {
   const [tab, setTab] = useState<string>('temps')
+  const [classNames, setClassNames] = useState<string[]>([])
+
+  useEffect(() => {
+    fetch('/api/students')
+      .then(r => r.json())
+      .then((data: { firstName: string; lastName: string }[]) => {
+        setClassNames(data.map(s => s.lastName ? `${s.firstName} ${s.lastName}` : s.firstName))
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -821,9 +862,9 @@ export default function ClassePage() {
 
       {tab === 'eleves' && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <SelecteurEleve />
-          <RoueChance />
-          <GenerateurGroupes />
+          <SelecteurEleve classNames={classNames} />
+          <RoueChance classNames={classNames} />
+          <GenerateurGroupes classNames={classNames} />
           <SondageRapide />
         </div>
       )}

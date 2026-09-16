@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, Share2, Calendar, PenLine, BookOpen,
-  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, UserCircle
+  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, GraduationCap
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -21,6 +21,7 @@ const navItems = [
   { href: '/creer', icon: PenLine, label: 'Créer' },
   { href: '/bibliotheque', icon: BookOpen, label: 'Bibliothèque' },
   { href: '/classe', icon: MonitorPlay, label: 'Outils de classe' },
+  { href: '/ma-classe', icon: GraduationCap, label: 'Ma classe' },
   { href: '/portail-parents', icon: Users, label: 'Portail parents' },
   { href: '/aide', icon: HelpCircle, label: 'Guide d\'utilisation' },
 ]

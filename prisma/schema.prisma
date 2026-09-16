@@ -21,6 +21,7 @@ model User {
   resourceFavorites ResourceFavorite[]
   weekPlans         WeekPlan[]
   parentPortal      ParentPortal?
+  students          Student[]
 
   @@map("methodo_users")
 }
@@ -167,4 +168,18 @@ model ParentPortal {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("methodo_parent_portals")
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  firstName String   @map("first_name")
+  lastName  String   @default("") @map("last_name")
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("methodo_students")
 }
