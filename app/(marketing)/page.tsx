@@ -11,8 +11,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-stone-100 bg-white/90 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center">
-            <div className="relative h-10 w-40 overflow-hidden">
-              <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_55%] scale-[2.1] translate-y-[8%]" priority />
+            <div className="relative h-12 w-44 overflow-hidden">
+              <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" priority />
             </div>
           </div>
           <nav className="hidden items-center gap-8 md:flex">
@@ -263,8 +263,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="flex items-center">
-              <div className="relative h-9 w-36 overflow-hidden">
-                <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_55%] scale-[2.1] translate-y-[8%]" />
+              <div className="relative h-11 w-40 overflow-hidden">
+                <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" />
               </div>
             </div>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-stone-500">

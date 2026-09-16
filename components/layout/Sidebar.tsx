@@ -39,8 +39,8 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex items-center px-4 py-3 border-b border-stone-100">
-        <div className="relative h-10 w-36 overflow-hidden">
-          <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_55%] scale-[2.1] translate-y-[8%]" priority />
+        <div className="relative h-12 w-40 overflow-hidden">
+          <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" priority />
         </div>
       </div>
 
