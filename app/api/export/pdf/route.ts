@@ -3,26 +3,34 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db/prisma'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  try {
+    const supabase = await createSupabaseServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  const body = await req.json()
-  const { documentId } = body
+    const body = await req.json()
+    const { documentId } = body
 
-  const document = await prisma.document.findFirst({ where: { id: documentId, userId: user.id } })
-  if (!document) return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
+    await prisma.user.upsert({
+      where: { id: user.id },
+      create: { id: user.id, email: user.email! },
+      update: {},
+    })
 
-  const content = document.content as Record<string, unknown>
-  const metadata = document.metadata as Record<string, string>
+    const document = await prisma.document.findFirst({ where: { id: documentId, userId: user.id } })
+    if (!document) return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
 
-  const html = generatePrintableHTML(document.title, document.type, content, metadata)
+    const content = document.content as Record<string, unknown>
+    const metadata = document.metadata as Record<string, string>
+    const html = generatePrintableHTML(document.title, document.type, content, metadata)
 
-  return new NextResponse(html, {
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-    },
-  })
+    return new NextResponse(html, {
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    })
+  } catch (err) {
+    console.error('PDF export error:', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
 }
 
 function generatePrintableHTML(title: string, type: string, content: Record<string, unknown>, metadata: Record<string, string>): string {
