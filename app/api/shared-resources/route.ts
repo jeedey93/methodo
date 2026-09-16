@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
     fileType: r.fileType,
     textContent: r.textContent,
     downloads: r.downloads,
+    isAiGenerated: r.isAiGenerated,
     createdAt: r.createdAt,
     authorName: r.author.profile
       ? `${r.author.profile.firstName} ${r.author.profile.lastName}`

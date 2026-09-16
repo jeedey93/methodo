@@ -2,10 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Heart, Download, ExternalLink } from 'lucide-react'
+import { Heart, Download } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import { GRADE_LABELS, SUBJECTS } from '@/lib/constants'
 
 const TYPE_COLORS: Record<string, string> = {
@@ -35,6 +33,7 @@ export interface ResourceCardData {
   favoritesCount: number
   isFavorited: boolean
   isOwn: boolean
+  isAiGenerated: boolean
   authorName: string
   createdAt: string
   fileType?: string | null
@@ -75,9 +74,16 @@ export default function ResourceCard({ resource }: Props) {
       className="group flex flex-col rounded-xl border border-stone-200 bg-white p-5 hover:border-stone-300 hover:shadow-sm transition-all"
     >
       <div className="mb-3 flex items-start justify-between gap-2">
-        <Badge className={`text-xs shrink-0 ${TYPE_COLORS[resource.type] ?? 'bg-stone-100 text-stone-700'}`}>
-          {TYPE_LABELS[resource.type] ?? resource.type}
-        </Badge>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <Badge className={`text-xs shrink-0 ${TYPE_COLORS[resource.type] ?? 'bg-stone-100 text-stone-700'}`}>
+            {TYPE_LABELS[resource.type] ?? resource.type}
+          </Badge>
+          {resource.isAiGenerated && (
+            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-medium text-violet-600">
+              ✨ IA
+            </span>
+          )}
+        </div>
         <button
           onClick={toggleFavorite}
           className="text-stone-400 hover:text-red-500 shrink-0 transition-colors"
@@ -111,7 +117,7 @@ export default function ResourceCard({ resource }: Props) {
         )}
 
         <div className="flex items-center justify-between text-xs text-stone-400">
-          <span>{resource.authorName}</span>
+          <span>{resource.isAiGenerated ? 'Méthodo IA' : resource.authorName}</span>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Heart className="h-3 w-3" /> {favCount}
