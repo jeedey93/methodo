@@ -21,9 +21,6 @@ export default function LandingPage() {
             <a href="#comment" className="text-sm text-stone-500 hover:text-stone-900 transition-colors">Comment ça fonctionne</a>
           </nav>
           <div className="flex items-center gap-3">
-            <Link href="/connexion">
-              <Button variant="ghost" size="sm">Connexion</Button>
-            </Link>
             <Link href="/inscription">
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Commencer gratuitement</Button>
             </Link>
