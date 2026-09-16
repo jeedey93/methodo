@@ -65,7 +65,7 @@ export default function DocumentDetailClient({ document }: DocumentDetailClientP
   }
 
   const handleExportPDF = async () => {
-    toast.info('Export PDF en préparation...')
+    toast.info('Ouverture pour impression...')
     try {
       const res = await fetch('/api/export/pdf', {
         method: 'POST',
@@ -73,11 +73,13 @@ export default function DocumentDetailClient({ document }: DocumentDetailClientP
         body: JSON.stringify({ documentId: document.id }),
       })
       if (!res.ok) throw new Error()
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = window.document.createElement('a')
-      a.href = url; a.download = `${title}.pdf`; a.click()
-      URL.revokeObjectURL(url)
+      const html = await res.text()
+      const win = window.open('', '_blank')
+      if (!win) throw new Error()
+      win.document.write(html)
+      win.document.close()
+      win.focus()
+      setTimeout(() => win.print(), 500)
     } catch {
       toast.error('Erreur lors de l\'export PDF.')
     }

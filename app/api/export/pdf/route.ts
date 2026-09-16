@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
   return new NextResponse(html, {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${document.title}.html"`,
     },
   })
 }
