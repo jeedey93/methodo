@@ -92,6 +92,8 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
 
       <ResourceDetailClient
         resourceId={resource.id}
+        resourceType={resource.type}
+        resourceTitle={resource.title}
         textContent={resource.textContent}
         fileUrl={resource.fileUrl}
         fileName={resource.fileName}

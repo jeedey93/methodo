@@ -3,11 +3,20 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Heart, Download, Trash2 } from 'lucide-react'
+import { Heart, Download, Trash2, BookCopy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+const RESOURCE_TYPE_TO_DOC_TYPE: Record<string, string> = {
+  planification: 'LESSON_PLAN',
+  materiel: 'WORKSHEET',
+  evaluation: 'ASSESSMENT',
+  communication: 'PARENT_MESSAGE',
+}
 
 interface Props {
   resourceId: string
+  resourceType: string
+  resourceTitle: string
   textContent: string | null
   fileUrl: string | null
   fileName: string | null
@@ -19,13 +28,14 @@ interface Props {
 }
 
 export default function ResourceDetailClient({
-  resourceId, textContent, fileUrl, fileName,
+  resourceId, resourceType, resourceTitle, textContent, fileUrl, fileName,
   isFavorited, favoritesCount, downloads, isOwn, tags,
 }: Props) {
   const router = useRouter()
   const [favorited, setFavorited] = useState(isFavorited)
   const [favCount, setFavCount] = useState(favoritesCount)
   const [dlCount, setDlCount] = useState(downloads)
+  const [copying, setCopying] = useState(false)
 
   const toggleFavorite = async () => {
     const prev = favorited
@@ -57,20 +67,56 @@ export default function ResourceDetailClient({
     router.push('/communaute')
   }
 
+  const handleCopyToLibrary = async () => {
+    setCopying(true)
+    const docType = RESOURCE_TYPE_TO_DOC_TYPE[resourceType] ?? 'WORKSHEET'
+    const content = textContent ? { texte: textContent } : { texte: '' }
+
+    const res = await fetch('/api/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: docType,
+        title: resourceTitle,
+        content,
+        metadata: { copiedFromResourceId: resourceId },
+      }),
+    })
+
+    if (res.ok) {
+      const { document } = await res.json()
+      toast.success('Copié dans ta bibliothèque!', {
+        action: {
+          label: 'Ouvrir',
+          onClick: () => router.push(`/bibliotheque/${document.id}`),
+        },
+      })
+    } else {
+      toast.error('Erreur lors de la copie.')
+    }
+    setCopying(false)
+  }
+
   return (
     <div className="space-y-6">
       {/* Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" onClick={toggleFavorite} className="gap-2">
           <Heart className={`h-4 w-4 ${favorited ? 'fill-red-500 text-red-500' : 'text-stone-400'}`} />
           {favorited ? 'Favori' : 'Ajouter aux favoris'}
           <span className="text-stone-400">({favCount})</span>
         </Button>
+
+        <Button onClick={handleCopyToLibrary} disabled={copying} className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <BookCopy className="h-4 w-4" />
+          {copying ? 'Copie...' : 'Copier dans ma bibliothèque'}
+        </Button>
+
         {fileUrl && (
-          <Button onClick={handleDownload} className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button variant="outline" onClick={handleDownload} className="gap-2">
             <Download className="h-4 w-4" />
             Télécharger {fileName ? `(${fileName})` : ''}
-            <span className="text-blue-200">({dlCount})</span>
+            <span className="text-stone-400">({dlCount})</span>
           </Button>
         )}
         {isOwn && (
