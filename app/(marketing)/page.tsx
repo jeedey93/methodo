@@ -40,7 +40,7 @@ export default function LandingPage() {
 
         {/* Grand logo centré */}
         <div className="mx-auto mb-8 relative w-80 h-56 sm:w-[480px] sm:h-72">
-          <Image src="/logo.png" alt="Méthodo" fill className="object-contain" priority />
+          <Image src="/logo.png" alt="Méthodo" fill className="object-contain mix-blend-multiply" priority />
         </div>
 
         <h1 className="mb-6 text-5xl font-bold tracking-tight text-stone-900 sm:text-6xl md:text-7xl">
