@@ -14,16 +14,36 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 
-const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Accueil' },
-  { href: '/communaute', icon: Share2, label: 'Communauté' },
-  { href: '/planificateur', icon: Calendar, label: 'Planificateur' },
-  { href: '/creer', icon: PenLine, label: 'Créer' },
-  { href: '/bibliotheque', icon: BookOpen, label: 'Bibliothèque' },
-  { href: '/classe', icon: MonitorPlay, label: 'Outils de classe' },
-  { href: '/ma-classe', icon: GraduationCap, label: 'Ma classe' },
-  { href: '/portail-parents', icon: Users, label: 'Portail parents' },
-  { href: '/aide', icon: HelpCircle, label: 'Guide d\'utilisation' },
+const navSections = [
+  {
+    label: 'Planification',
+    items: [
+      { href: '/dashboard', icon: Home, label: 'Accueil' },
+      { href: '/planificateur', icon: Calendar, label: 'Planificateur' },
+      { href: '/creer', icon: PenLine, label: 'Créer' },
+      { href: '/bibliotheque', icon: BookOpen, label: 'Bibliothèque' },
+    ],
+  },
+  {
+    label: 'Classe',
+    items: [
+      { href: '/ma-classe', icon: GraduationCap, label: 'Ma classe' },
+      { href: '/classe', icon: MonitorPlay, label: 'Outils de classe' },
+    ],
+  },
+  {
+    label: 'Communication',
+    items: [
+      { href: '/communaute', icon: Share2, label: 'Communauté' },
+      { href: '/portail-parents', icon: Users, label: 'Portail parents' },
+    ],
+  },
+  {
+    label: 'Aide',
+    items: [
+      { href: '/aide', icon: HelpCircle, label: "Guide d'utilisation" },
+    ],
+  },
 ]
 
 interface ProfileData {
@@ -79,26 +99,35 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(item => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
-              )}
-            >
-              <item.icon className={cn('h-4 w-4', isActive ? 'text-blue-600' : 'text-stone-400')} />
-              {item.label}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+        {navSections.map(section => (
+          <div key={section.label}>
+            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-stone-400">
+              {section.label}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map(item => {
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    )}
+                  >
+                    <item.icon className={cn('h-4 w-4', isActive ? 'text-blue-600' : 'text-stone-400')} />
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Footer — profil */}
