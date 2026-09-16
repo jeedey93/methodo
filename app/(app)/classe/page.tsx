@@ -622,26 +622,62 @@ function ModeProjecteur() {
 
 // ─── Page principale ──────────────────────────────────────────────────────────
 
+const TABS = [
+  { id: 'temps',   label: '⏱ Temps & ambiance' },
+  { id: 'eleves',  label: '👥 Élèves' },
+  { id: 'affichage', label: '📺 Affichage' },
+]
+
 export default function ClassePage() {
+  const [tab, setTab] = useState<string>('temps')
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-stone-900">Outils de classe</h1>
         <p className="mt-1 text-stone-500">Outils interactifs pour animer votre classe au quotidien.</p>
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Minuterie />
-        <SelecteurEleve />
-        <NiveauBruit />
-        <Des />
-        <RoueChance />
-        <AffichageConsignes />
+
+      {/* Onglets */}
+      <div className="flex gap-1 rounded-xl bg-stone-100 p-1">
+        {TABS.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              tab === t.id
+                ? 'bg-white text-stone-900 shadow-sm'
+                : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <GenerateurGroupes />
-        <SondageRapide />
-      </div>
-      <ModeProjecteur />
+
+      {tab === 'temps' && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <Minuterie />
+          <NiveauBruit />
+          <Des />
+        </div>
+      )}
+
+      {tab === 'eleves' && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <SelecteurEleve />
+          <RoueChance />
+          <GenerateurGroupes />
+          <SondageRapide />
+        </div>
+      )}
+
+      {tab === 'affichage' && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <AffichageConsignes />
+          <ModeProjecteur />
+        </div>
+      )}
     </div>
   )
 }
