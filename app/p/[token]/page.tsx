@@ -2,7 +2,6 @@ import { prisma } from '@/lib/db/prisma'
 import { WeekGridReadOnly } from '@/components/features/planner/WeekGridReadOnly'
 import type { WeekSlot } from '@/components/features/planner/WeekGrid'
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
 
 interface PortalMessage {
   id: string
@@ -13,10 +12,14 @@ interface PortalMessage {
 
 export default async function PortailParentPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>
+  searchParams: Promise<{ projecteur?: string }>
 }) {
   const { token } = await params
+  const { projecteur } = await searchParams
+  const isProjecteur = projecteur === '1'
 
   const portal = await prisma.parentPortal.findUnique({
     where: { slug: token },
@@ -60,6 +63,33 @@ export default async function PortailParentPage({
   const slots: WeekSlot[] = (weekPlan?.slots ?? []) as unknown as WeekSlot[]
   const messages = (portal.messages ?? []) as unknown as PortalMessage[]
   const weekLabel = monday.toLocaleDateString('fr-CA', { month: 'long', day: 'numeric', year: 'numeric' })
+
+  if (isProjecteur) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900">
+              {portal.className || `Classe de ${teacherName}`}
+            </h1>
+            <p className="text-stone-500">Semaine du {weekLabel}</p>
+          </div>
+          <div className="relative h-10 w-10 overflow-hidden rounded-xl flex-shrink-0">
+            <Image src="/logo-icon.jpeg" alt="Méthodo" fill className="object-cover object-center scale-[1.15]" />
+          </div>
+        </div>
+        {weekPlan ? (
+          <div className="flex-1 overflow-auto">
+            <WeekGridReadOnly slots={slots} />
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-stone-400 text-lg">
+            Aucune planification pour cette semaine.
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">
