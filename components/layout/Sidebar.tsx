@@ -8,10 +8,10 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, Share2, Calendar, PenLine, BookOpen,
-  Settings, LogOut, Menu, X, Users, MonitorPlay, HelpCircle
+  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, UserCircle
 } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
@@ -25,10 +25,32 @@ const navItems = [
   { href: '/aide', icon: HelpCircle, label: 'Guide d\'utilisation' },
 ]
 
+interface ProfileData {
+  firstName?: string
+  lastName?: string
+  avatarUrl?: string | null
+}
+
 export default function Sidebar({ firstName }: { firstName?: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profile, setProfile] = useState<ProfileData>({ firstName })
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(r => r.json())
+      .then(data => {
+        if (data.profile) {
+          setProfile({
+            firstName: data.profile.firstName,
+            lastName: data.profile.lastName,
+            avatarUrl: data.profile.avatarUrl,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [pathname])
 
   const handleSignOut = async () => {
     const supabase = createSupabaseBrowserClient()
@@ -36,6 +58,14 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
     router.push('/connexion')
     router.refresh()
   }
+
+  const initials = profile.firstName && profile.lastName
+    ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+    : profile.firstName?.charAt(0).toUpperCase() ?? '?'
+
+  const displayName = profile.firstName
+    ? profile.lastName ? `${profile.firstName} ${profile.lastName}` : profile.firstName
+    : firstName ?? ''
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
@@ -70,14 +100,28 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-stone-100 px-3 py-4 space-y-1">
+      {/* Footer — profil */}
+      <div className="border-t border-stone-100 px-3 py-3 space-y-1">
         <Link
           href="/parametres"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition-colors"
+          onClick={() => setMobileOpen(false)}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            pathname === '/parametres'
+              ? 'bg-blue-50 text-blue-700'
+              : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+          )}
         >
-          <Settings className="h-4 w-4 text-stone-400" />
-          Paramètres
+          {profile.avatarUrl ? (
+            <div className="relative h-6 w-6 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-stone-200">
+              <Image src={profile.avatarUrl} alt="Profil" fill className="object-cover" unoptimized />
+            </div>
+          ) : (
+            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-bold text-blue-600">{initials}</span>
+            </div>
+          )}
+          <span className="truncate">{displayName || 'Mon profil'}</span>
         </Link>
         <button
           onClick={handleSignOut}

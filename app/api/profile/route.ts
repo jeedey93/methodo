@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const body = await req.json()
-  const { firstName, lastName, grades, subjects } = body
+  const { firstName, lastName, school, grades, subjects } = body
 
   if (!firstName || !lastName || !grades?.length || !subjects?.length) {
     return NextResponse.json({ error: 'Champs manquants' }, { status: 400 })
@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
 
     await tx.teacherProfile.upsert({
       where: { userId: user.id },
-      create: { userId: user.id, firstName, lastName, grades, subjects },
-      update: { firstName, lastName, grades, subjects },
+      create: { userId: user.id, firstName, lastName, school: school ?? null, grades, subjects },
+      update: { firstName, lastName, school: school ?? null, grades, subjects },
     })
   })
 
