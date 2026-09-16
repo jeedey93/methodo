@@ -79,6 +79,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Titre et type requis' }, { status: 400 })
   }
 
+  await prisma.user.upsert({
+    where: { id: user.id },
+    create: { id: user.id, email: user.email! },
+    update: {},
+  })
+
   const resource = await prisma.sharedResource.create({
     data: {
       authorId: user.id,

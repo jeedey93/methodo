@@ -105,7 +105,7 @@ export default function PlanificationPage() {
       })
 
       if (!res.ok) throw new Error()
-      const doc = await res.json()
+      const { document: doc } = await res.json()
       toast.success('Planification créée!')
       router.push(`/bibliotheque/${doc.id}`)
     } catch {

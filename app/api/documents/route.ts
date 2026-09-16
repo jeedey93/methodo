@@ -40,6 +40,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Champs manquants' }, { status: 400 })
   }
 
+  await prisma.user.upsert({
+    where: { id: user.id },
+    create: { id: user.id, email: user.email! },
+    update: {},
+  })
+
   const document = await prisma.document.create({
     data: { userId: user.id, type, title, content, metadata: metadata ?? {} },
   })

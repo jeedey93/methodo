@@ -91,7 +91,7 @@ export default function ExercicesPage() {
       })
 
       if (!res.ok) throw new Error()
-      const doc = await res.json()
+      const { document: doc } = await res.json()
       toast.success('Feuille d\'exercices créée!')
       router.push(`/bibliotheque/${doc.id}`)
     } catch {

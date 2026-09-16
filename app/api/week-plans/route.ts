@@ -29,6 +29,12 @@ export async function POST(req: NextRequest) {
   const startDate = new Date(weekStart)
   startDate.setUTCHours(0, 0, 0, 0)
 
+  await prisma.user.upsert({
+    where: { id: user.id },
+    create: { id: user.id, email: user.email! },
+    update: {},
+  })
+
   const plan = await prisma.weekPlan.upsert({
     where: { userId_weekStart: { userId: user.id, weekStart: startDate } },
     create: { userId: user.id, weekStart: startDate, title: title ?? 'Ma semaine', slots: [] },
