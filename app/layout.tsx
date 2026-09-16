@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Méthodo — L'assistant intelligent des profs",
   description: "Planifiez vos cours, créez votre matériel et simplifiez votre quotidien d'enseignant.",
   keywords: ["enseignants", "pédagogie", "planification", "Québec", "primaire", "IA"],
+  icons: { icon: '/logo.jpeg' },
 }
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { BookOpen, Brain, ClipboardCheck, MessageSquare, Library, Clock, Sparkles, ChevronRight, Check } from 'lucide-react'
@@ -9,11 +10,8 @@ export default function LandingPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-stone-100 bg-white/90 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight text-stone-900">Méthodo</span>
+          <div className="flex items-center">
+            <Image src="/logo.jpeg" alt="Méthodo" width={130} height={52} className="object-contain" priority />
           </div>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#fonctionnalites" className="text-sm text-stone-500 hover:text-stone-900 transition-colors">Fonctionnalités</a>
@@ -262,11 +260,8 @@ export default function LandingPage() {
       <footer className="border-t border-stone-200 bg-white py-12">
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-semibold text-stone-900">Méthodo</span>
+            <div className="flex items-center">
+              <Image src="/logo.jpeg" alt="Méthodo" width={110} height={44} className="object-contain" />
             </div>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-stone-500">
               <a href="#" className="hover:text-stone-900">À propos</a>
