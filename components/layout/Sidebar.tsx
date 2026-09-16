@@ -8,11 +8,10 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, Share2, Calendar, PenLine, BookOpen,
-  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, GraduationCap
+  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, GraduationCap, ChevronRight
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 
 const navSections = [
   {
@@ -89,20 +88,20 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
     : firstName ?? ''
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-white">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-stone-100">
-        <div className="relative h-9 w-9 overflow-hidden rounded-xl flex-shrink-0">
+      <div className="flex items-center gap-3 px-5 py-5">
+        <div className="relative h-8 w-8 overflow-hidden rounded-lg flex-shrink-0 shadow-sm">
           <Image src="/logo-icon.jpeg" alt="Méthodo" fill className="object-cover object-center scale-[1.15]" priority />
         </div>
-        <span className="text-lg font-bold tracking-tight text-stone-900">Méthodo</span>
+        <span className="text-[17px] font-bold tracking-tight text-stone-900">Méthodo</span>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+      <nav className="flex-1 px-3 pb-4 space-y-5 overflow-y-auto">
         {navSections.map(section => (
           <div key={section.label}>
-            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-stone-400">
+            <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-stone-400/80">
               {section.label}
             </p>
             <div className="space-y-0.5">
@@ -114,14 +113,22 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
                       isActive
                         ? 'bg-blue-50 text-blue-700'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        : 'text-stone-500 hover:bg-stone-50 hover:text-stone-800'
                     )}
                   >
-                    <item.icon className={cn('h-4 w-4', isActive ? 'text-blue-600' : 'text-stone-400')} />
-                    {item.label}
+                    <span className={cn(
+                      'flex h-7 w-7 items-center justify-center rounded-md transition-all',
+                      isActive
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'text-stone-400 group-hover:text-stone-600'
+                    )}>
+                      <item.icon className="h-4 w-4" />
+                    </span>
+                    <span className="flex-1">{item.label}</span>
+                    {isActive && <ChevronRight className="h-3.5 w-3.5 text-blue-400" />}
                   </Link>
                 )
               })}
@@ -131,33 +138,36 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
       </nav>
 
       {/* Footer — profil */}
-      <div className="border-t border-stone-100 px-3 py-3 space-y-1">
+      <div className="px-3 pb-3 pt-2 border-t border-stone-100">
         <Link
           href="/parametres"
           onClick={() => setMobileOpen(false)}
           className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            'group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all',
             pathname === '/parametres'
-              ? 'bg-blue-50 text-blue-700'
-              : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+              ? 'bg-blue-50'
+              : 'hover:bg-stone-50'
           )}
         >
           {profile.avatarUrl ? (
-            <div className="relative h-6 w-6 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-stone-200">
+            <div className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white shadow-sm">
               <Image src={profile.avatarUrl} alt="Profil" fill className="object-cover" unoptimized />
             </div>
           ) : (
-            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold text-blue-600">{initials}</span>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="text-xs font-bold text-white">{initials}</span>
             </div>
           )}
-          <span className="truncate">{displayName || 'Mon profil'}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-stone-800 truncate">{displayName || 'Mon profil'}</p>
+            <p className="text-xs text-stone-400">Mon profil</p>
+          </div>
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+          className="mt-0.5 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-stone-400 hover:bg-red-50 hover:text-red-500 transition-all"
         >
-          <LogOut className="h-4 w-4 text-stone-400" />
+          <LogOut className="h-4 w-4" />
           Se déconnecter
         </button>
       </div>
@@ -167,13 +177,13 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 border-r border-stone-200 bg-white flex-col h-screen sticky top-0">
+      <aside className="hidden md:flex w-60 border-r border-stone-200/80 flex-col h-screen sticky top-0 shadow-[1px_0_0_0_rgba(0,0,0,0.04)]">
         <SidebarContent />
       </aside>
 
       {/* Mobile hamburger */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-stone-200 shadow-sm"
+        className="md:hidden fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-stone-200 shadow-md"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -182,8 +192,8 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
-          <aside className="relative w-64 h-full bg-white">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <aside className="relative w-60 h-full shadow-xl">
             <SidebarContent />
           </aside>
         </div>
