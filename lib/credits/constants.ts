@@ -1,7 +1,0 @@
-export const FREE_GENERATIONS_LIMIT = 5
-export const PRO_GENERATIONS_LIMIT = 200
-
-export const PLAN_LIMITS: Record<string, number> = {
-  FREE: FREE_GENERATIONS_LIMIT,
-  PRO: PRO_GENERATIONS_LIMIT,
-}

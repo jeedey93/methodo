@@ -26,12 +26,6 @@ export async function POST(req: NextRequest) {
       create: { userId: user.id, firstName, lastName, grades, subjects },
       update: { firstName, lastName, grades, subjects },
     })
-
-    await tx.subscription.upsert({
-      where: { userId: user.id },
-      create: { userId: user.id, plan: 'FREE' },
-      update: {},
-    })
   })
 
   return NextResponse.json({ success: true }, { status: 201 })

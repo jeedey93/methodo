@@ -33,10 +33,9 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAppRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/planifier') ||
+    request.nextUrl.pathname.startsWith('/communaute') ||
+    request.nextUrl.pathname.startsWith('/planificateur') ||
     request.nextUrl.pathname.startsWith('/creer') ||
-    request.nextUrl.pathname.startsWith('/evaluer') ||
-    request.nextUrl.pathname.startsWith('/parents') ||
     request.nextUrl.pathname.startsWith('/bibliotheque') ||
     request.nextUrl.pathname.startsWith('/parametres')
 

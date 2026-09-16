@@ -6,9 +6,9 @@ import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Méthodo — L'assistant intelligent des profs",
-  description: "Planifiez vos cours, créez votre matériel et simplifiez votre quotidien d'enseignant.",
-  keywords: ["enseignants", "pédagogie", "planification", "Québec", "primaire", "IA"],
+  title: "Méthodo — La plateforme collaborative des profs québécois",
+  description: "Partagez vos ressources, planifiez votre semaine, créez votre matériel. Gratuit pour toujours.",
+  keywords: ["enseignants", "pédagogie", "planification", "Québec", "primaire", "ressources partagées"],
   icons: { icon: '/logo-icon.jpeg' },
 }
 

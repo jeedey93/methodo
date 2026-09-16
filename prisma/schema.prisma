@@ -14,11 +14,12 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  profile      TeacherProfile?
-  documents    Document[]
-  subscription Subscription?
-  usage        UsageTracking[]
-  tags         Tag[]
+  profile           TeacherProfile?
+  documents         Document[]
+  tags              Tag[]
+  sharedResources   SharedResource[]
+  resourceFavorites ResourceFavorite[]
+  weekPlans         WeekPlan[]
 
   @@map("users")
 }
@@ -94,47 +95,58 @@ model TagOnDocument {
   @@map("tags_on_documents")
 }
 
-enum SubscriptionPlan {
-  FREE
-  PRO
+model SharedResource {
+  id          String   @id @default(cuid())
+  authorId    String   @map("author_id")
+  title       String
+  description String   @default("")
+  type        String
+  grades      String[]
+  subjects    String[]
+  tags        String[]
+  fileUrl     String?  @map("file_url")
+  fileName    String?  @map("file_name")
+  fileType    String?  @map("file_type")
+  fileSize    Int?     @map("file_size")
+  textContent String?  @map("text_content")
+  downloads   Int      @default(0)
+  isPublished Boolean  @default(true) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  author    User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  favorites ResourceFavorite[]
+
+  @@index([authorId])
+  @@index([type])
+  @@index([isPublished])
+  @@map("shared_resources")
 }
 
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELED
-  PAST_DUE
-  TRIALING
+model ResourceFavorite {
+  userId     String   @map("user_id")
+  resourceId String   @map("resource_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource SharedResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@id([userId, resourceId])
+  @@map("resource_favorites")
 }
 
-model Subscription {
-  id                   String             @id @default(cuid())
-  userId               String             @unique @map("user_id")
-  plan                 SubscriptionPlan   @default(FREE)
-  status               SubscriptionStatus @default(ACTIVE)
-  stripeCustomerId     String?            @unique @map("stripe_customer_id")
-  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
-  stripePriceId        String?            @map("stripe_price_id")
-  currentPeriodEnd     DateTime?          @map("current_period_end")
-  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  updatedAt            DateTime           @updatedAt @map("updated_at")
+model WeekPlan {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String   @default("Ma semaine")
+  weekStart DateTime @map("week_start")
+  slots     Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("subscriptions")
-}
-
-model UsageTracking {
-  id            String   @id @default(cuid())
-  userId        String   @map("user_id")
-  billingPeriod String   @map("billing_period")
-  count         Int      @default(0)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, billingPeriod])
-  @@index([userId, billingPeriod])
-  @@map("usage_tracking")
+  @@unique([userId, weekStart])
+  @@index([userId])
+  @@map("week_plans")
 }

@@ -7,7 +7,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
-  Home, Brain, FileText, BarChart3, MessageSquare, BookOpen,
+  Home, Share2, Calendar, PenLine, BookOpen,
   Settings, LogOut, Menu, X
 } from 'lucide-react'
 import Image from 'next/image'
@@ -16,10 +16,9 @@ import { Button } from '@/components/ui/button'
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Accueil' },
-  { href: '/planifier', icon: Brain, label: 'Planifier' },
-  { href: '/creer', icon: FileText, label: 'Créer' },
-  { href: '/evaluer', icon: BarChart3, label: 'Évaluer' },
-  { href: '/parents', icon: MessageSquare, label: 'Parents' },
+  { href: '/communaute', icon: Share2, label: 'Communauté' },
+  { href: '/planificateur', icon: Calendar, label: 'Planificateur' },
+  { href: '/creer', icon: PenLine, label: 'Créer' },
   { href: '/bibliotheque', icon: BookOpen, label: 'Bibliothèque' },
 ]
 

@@ -27,19 +27,6 @@ async function main() {
     update: {},
   })
 
-  await prisma.subscription.upsert({
-    where: { userId: DEMO_USER_ID },
-    create: { userId: DEMO_USER_ID, plan: 'FREE' },
-    update: {},
-  })
-
-  const billingPeriod = new Date().toISOString().slice(0, 7)
-  await prisma.usageTracking.upsert({
-    where: { userId_billingPeriod: { userId: DEMO_USER_ID, billingPeriod } },
-    create: { userId: DEMO_USER_ID, billingPeriod, count: 3 },
-    update: { count: 3 },
-  })
-
   // Demo documents
   const docs = [
     {

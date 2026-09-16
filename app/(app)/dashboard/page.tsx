@@ -2,10 +2,9 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Brain, FileText, BarChart3, MessageSquare, BookOpen, ChevronRight, Plus, Clock } from 'lucide-react'
+import { Share2, Calendar, PenLine, BookOpen, ChevronRight, Plus, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { getUsage } from '@/lib/credits/checker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -28,7 +27,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/connexion')
 
-  const [profile, recentDocuments, usage] = await Promise.all([
+  const [profile, recentDocuments] = await Promise.all([
     prisma.teacherProfile.findUnique({
       where: { userId: user.id },
       select: { firstName: true, grades: true, subjects: true },
@@ -39,70 +38,29 @@ export default async function DashboardPage() {
       take: 5,
       select: { id: true, title: true, type: true, updatedAt: true, metadata: true },
     }),
-    getUsage(user.id),
   ])
 
   const firstName = profile?.firstName ?? 'Enseignant'
-  const creditsLeft = Math.max(0, usage.limit - usage.used)
 
   const features = [
-    { href: '/planifier/nouveau', icon: Brain, title: 'Planifier ma semaine', desc: 'Créez une planification complète.', color: 'bg-purple-50 border-purple-100', iconColor: 'bg-purple-100 text-purple-600' },
-    { href: '/creer/nouveau', icon: FileText, title: 'Créer du matériel', desc: 'Activité, feuille d\'exercices, fiche élève, etc.', color: 'bg-blue-50 border-blue-100', iconColor: 'bg-blue-100 text-blue-600' },
-    { href: '/evaluer/nouveau', icon: BarChart3, title: 'Créer une évaluation', desc: 'Quiz, contrôle, grille d\'évaluation, etc.', color: 'bg-orange-50 border-orange-100', iconColor: 'bg-orange-100 text-orange-600' },
-    { href: '/parents/nouveau', icon: MessageSquare, title: 'Écrire aux parents', desc: 'Créez une communication claire et professionnelle.', color: 'bg-green-50 border-green-100', iconColor: 'bg-green-100 text-green-600' },
-    { href: '/bibliotheque', icon: BookOpen, title: 'Ma bibliothèque', desc: 'Retrouvez tout votre matériel.', color: 'bg-stone-50 border-stone-100', iconColor: 'bg-stone-100 text-stone-600' },
+    { href: '/communaute', icon: Share2, title: 'Ressources partagées', desc: 'Découvrez et partagez du matériel avec la communauté.', color: 'bg-teal-50 border-teal-100', iconColor: 'bg-teal-100 text-teal-600' },
+    { href: '/planificateur', icon: Calendar, title: 'Planificateur hebdomadaire', desc: 'Organisez votre semaine en un coup d\'œil.', color: 'bg-blue-50 border-blue-100', iconColor: 'bg-blue-100 text-blue-600' },
+    { href: '/creer', icon: PenLine, title: 'Créer un document', desc: 'Planification PFÉQ ou feuille d\'exercices structurée.', color: 'bg-purple-50 border-purple-100', iconColor: 'bg-purple-100 text-purple-600' },
+    { href: '/bibliotheque', icon: BookOpen, title: 'Ma bibliothèque', desc: 'Retrouvez tout votre matériel créé.', color: 'bg-stone-50 border-stone-100', iconColor: 'bg-stone-100 text-stone-600' },
   ]
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">
-            Bonjour {firstName} 👋
-          </h1>
-          <p className="mt-1 text-stone-500">Qu&apos;est-ce qu&apos;on prépare aujourd&apos;hui?</p>
-        </div>
-        {/* Usage counter */}
-        <div className="hidden sm:block rounded-xl border border-stone-200 bg-white px-4 py-3 text-right shadow-sm">
-          {usage.plan === 'PRO' ? (
-            <div>
-              <div className="text-xs text-stone-400">Plan Pro</div>
-              <div className="text-sm font-semibold text-blue-600">Illimité ✨</div>
-            </div>
-          ) : (
-            <div>
-              <div className="text-xs text-stone-400">Générations ce mois</div>
-              <div className="text-sm font-semibold text-stone-900">
-                <span className={creditsLeft === 0 ? 'text-red-600' : 'text-stone-900'}>
-                  {usage.used}
-                </span>
-                <span className="text-stone-400"> / {usage.limit}</span>
-              </div>
-            </div>
-          )}
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-stone-900">
+          Bonjour {firstName} 👋
+        </h1>
+        <p className="mt-1 text-stone-500">Qu&apos;est-ce qu&apos;on prépare aujourd&apos;hui?</p>
       </div>
 
-      {/* Low credits warning */}
-      {usage.plan === 'FREE' && creditsLeft <= 1 && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex items-center justify-between">
-          <div>
-            <span className="text-sm font-medium text-amber-800">
-              {creditsLeft === 0
-                ? '🚫 Vous avez utilisé toutes vos générations ce mois-ci.'
-                : '⚠️ Il vous reste seulement 1 génération ce mois-ci.'}
-            </span>
-            <span className="ml-2 text-sm text-amber-600">Passez au plan Pro pour continuer.</span>
-          </div>
-          <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shrink-0">
-            Passer au Pro
-          </Button>
-        </div>
-      )}
-
       {/* Feature cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
         {features.map(f => (
           <Link
             key={f.href}
@@ -139,8 +97,8 @@ export default async function DashboardPage() {
               <BookOpen className="h-6 w-6 text-stone-400" />
             </div>
             <p className="text-sm font-medium text-stone-600">Vos créations apparaîtront ici.</p>
-            <p className="mt-1 text-sm text-stone-400">Commencez par planifier une leçon ou créer du matériel.</p>
-            <Link href="/planifier/nouveau">
+            <p className="mt-1 text-sm text-stone-400">Commencez par créer une planification ou une feuille d&apos;exercices.</p>
+            <Link href="/creer">
               <Button size="sm" className="mt-4 bg-blue-600 hover:bg-blue-700">
                 <Plus className="mr-1.5 h-4 w-4" />
                 Créer mon premier document
