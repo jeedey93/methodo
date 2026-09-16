@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db/prisma'
 
+export async function GET() {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
+  const profile = await prisma.teacherProfile.findUnique({ where: { userId: user.id } })
+  return NextResponse.json({ profile })
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
