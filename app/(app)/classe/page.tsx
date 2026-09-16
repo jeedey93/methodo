@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   Timer, Users, Projector, Play, Pause, RotateCcw, Shuffle,
   X, Maximize2, ChevronUp, ChevronDown, Volume2, Dices,
-  RefreshCw, Monitor, Copy, Check, BarChart2,
+  RefreshCw, Monitor, Copy, Check, BarChart2, Clock, TrafficCone,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { WEEK_COLORS } from '@/lib/constants'
@@ -620,6 +620,160 @@ function ModeProjecteur() {
   )
 }
 
+// ─── Horloge ─────────────────────────────────────────────────────────────────
+
+function Horloge() {
+  const [time, setTime] = useState(new Date())
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const h = time.getHours() % 12
+  const m = time.getMinutes()
+  const s = time.getSeconds()
+  const hDeg = h * 30 + m * 0.5
+  const mDeg = m * 6
+  const sDeg = s * 6
+
+  const cx = 80
+  const cy = 80
+  const r = 70
+
+  const handCoords = (deg: number, len: number) => {
+    const rad = (deg - 90) * (Math.PI / 180)
+    return { x: cx + len * Math.cos(rad), y: cy + len * Math.sin(rad) }
+  }
+
+  const hEnd = handCoords(hDeg, 42)
+  const mEnd = handCoords(mDeg, 56)
+  const sEnd = handCoords(sDeg, 62)
+
+  const hourMarks = Array.from({ length: 12 }, (_, i) => {
+    const deg = i * 30
+    const rad = (deg - 90) * (Math.PI / 180)
+    const inner = 60
+    const outer = 68
+    return {
+      x1: cx + inner * Math.cos(rad),
+      y1: cy + inner * Math.sin(rad),
+      x2: cx + outer * Math.cos(rad),
+      y2: cy + outer * Math.sin(rad),
+    }
+  })
+
+  const pad = (n: number) => String(n).padStart(2, '0')
+
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Clock className="h-4 w-4 text-blue-600" />
+        <h2 className="font-semibold text-stone-900">Horloge</h2>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx={cx} cy={cy} r={r} fill="white" stroke="#e7e5e4" strokeWidth="3" />
+          {hourMarks.map((m, i) => (
+            <line key={i} x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2}
+              stroke={i % 3 === 0 ? '#1c1917' : '#a8a29e'} strokeWidth={i % 3 === 0 ? 2.5 : 1.5} strokeLinecap="round" />
+          ))}
+          {/* Hour hand */}
+          <line x1={cx} y1={cy} x2={hEnd.x} y2={hEnd.y} stroke="#1c1917" strokeWidth="4" strokeLinecap="round" />
+          {/* Minute hand */}
+          <line x1={cx} y1={cy} x2={mEnd.x} y2={mEnd.y} stroke="#1c1917" strokeWidth="2.5" strokeLinecap="round" />
+          {/* Second hand */}
+          <line x1={cx} y1={cy} x2={sEnd.x} y2={sEnd.y} stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx={cx} cy={cy} r="4" fill="#1c1917" />
+          <circle cx={cx} cy={cy} r="2" fill="#ef4444" />
+        </svg>
+        <p className="text-sm tabular-nums text-stone-500">
+          {pad(time.getHours())}:{pad(m)}:{pad(s)}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Feux de circulation ──────────────────────────────────────────────────────
+
+const FEUX = [
+  { color: '#ef4444', bg: 'bg-red-500', hover: 'hover:bg-red-600', emoji: '🔴', label: 'Je ne comprends pas' },
+  { color: '#f59e0b', bg: 'bg-amber-400', hover: 'hover:bg-amber-500', emoji: '🟡', label: "J'ai des questions" },
+  { color: '#22c55e', bg: 'bg-green-500', hover: 'hover:bg-green-600', emoji: '🟢', label: 'Je comprends bien!' },
+]
+
+function FeuxCirculation() {
+  const [active, setActive] = useState<number | null>(null)
+  const [modeEleve, setModeEleve] = useState(false)
+
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <TrafficCone className="h-4 w-4 text-blue-600" />
+        <h2 className="font-semibold text-stone-900">Feux de circulation</h2>
+      </div>
+
+      <p className="text-sm text-stone-500">Indiquez votre niveau de compréhension.</p>
+
+      <div className="flex justify-center gap-4">
+        {FEUX.map((f, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            className={`h-16 w-16 rounded-full ${f.bg} ${f.hover} text-2xl shadow-md transition-transform hover:scale-110 active:scale-95`}
+            title={f.label}
+          >
+            {f.emoji}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => setModeEleve(v => !v)}
+        className={`w-full rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+          modeEleve ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+        }`}
+      >
+        {modeEleve ? '✓ Mode élève actif' : 'Activer le mode élève'}
+      </button>
+
+      {/* Fullscreen overlay — enseignant */}
+      {active !== null && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center cursor-pointer"
+          style={{ backgroundColor: FEUX[active].color }}
+          onClick={() => setActive(null)}
+        >
+          <span className="text-9xl mb-6">{FEUX[active].emoji}</span>
+          <p className="text-4xl font-bold text-white">{FEUX[active].label}</p>
+          <p className="mt-8 text-white/70 text-lg">Cliquez pour fermer</p>
+        </div>
+      )}
+
+      {/* Fullscreen mode élève */}
+      {modeEleve && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-stone-900">
+          <p className="text-white text-2xl font-bold mb-10">Comment tu te sens?</p>
+          <div className="flex gap-8">
+            {FEUX.map((f, i) => (
+              <button
+                key={i}
+                onClick={() => { setActive(i); setModeEleve(false) }}
+                className={`h-28 w-28 rounded-full ${f.bg} ${f.hover} text-5xl shadow-xl transition-transform hover:scale-110 active:scale-95 flex flex-col items-center justify-center gap-1`}
+              >
+                {f.emoji}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setModeEleve(false)} className="mt-12 text-white/50 hover:text-white text-sm">
+            Fermer
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Page principale ──────────────────────────────────────────────────────────
 
 const TABS = [
@@ -658,8 +812,10 @@ export default function ClassePage() {
       {tab === 'temps' && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Minuterie />
+          <Horloge />
           <NiveauBruit />
           <Des />
+          <FeuxCirculation />
         </div>
       )}
 
