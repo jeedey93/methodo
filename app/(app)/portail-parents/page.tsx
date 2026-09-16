@@ -5,6 +5,9 @@ import { toast } from 'sonner'
 import { Copy, Check, Plus, Trash2, Eye, EyeOff, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'] as const
+type Day = typeof DAYS[number]
+
 interface PortalMessage {
   id: string
   title: string
@@ -12,11 +15,19 @@ interface PortalMessage {
   publishedAt: string
 }
 
+interface AgendaItem {
+  id: string
+  day: Day
+  subject: string
+  note: string
+}
+
 interface Portal {
   id: string
   slug: string
   className: string
   messages: PortalMessage[]
+  agenda: AgendaItem[]
   isActive: boolean
 }
 
@@ -33,6 +44,11 @@ export default function PortailParentsPage() {
   const [msgTitle, setMsgTitle] = useState('')
   const [msgBody, setMsgBody] = useState('')
   const [savingMsg, setSavingMsg] = useState(false)
+  const [showNewAgenda, setShowNewAgenda] = useState(false)
+  const [agendaDay, setAgendaDay] = useState<Day>('Lundi')
+  const [agendaSubject, setAgendaSubject] = useState('')
+  const [agendaNote, setAgendaNote] = useState('')
+  const [savingAgenda, setSavingAgenda] = useState(false)
 
   useEffect(() => {
     fetch('/api/parent-portal')
@@ -45,7 +61,40 @@ export default function PortailParentsPage() {
       })
   }, [])
 
-  const portalUrl = portal ? `${window.location.origin}/p/${portal.slug}` : ''
+  const portalUrl = portal ? `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${portal.slug}` : ''
+
+  const handleAddAgendaItem = async () => {
+    if (!portal || !agendaSubject.trim()) return
+    setSavingAgenda(true)
+    const newItem: AgendaItem = {
+      id: crypto.randomUUID(),
+      day: agendaDay,
+      subject: agendaSubject.trim(),
+      note: agendaNote.trim(),
+    }
+    const updated = await fetch('/api/parent-portal', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agenda: [...(portal.agenda ?? []), newItem] }),
+    }).then(r => r.json())
+    setPortal(updated)
+    setAgendaSubject('')
+    setAgendaNote('')
+    setShowNewAgenda(false)
+    setSavingAgenda(false)
+    toast.success("Élément ajouté à l'agenda")
+  }
+
+  const handleDeleteAgendaItem = async (id: string) => {
+    if (!portal) return
+    const updated = await fetch('/api/parent-portal', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agenda: (portal.agenda ?? []).filter(i => i.id !== id) }),
+    }).then(r => r.json())
+    setPortal(updated)
+    toast.success('Élément supprimé')
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(portalUrl)
@@ -168,7 +217,7 @@ export default function PortailParentsPage() {
         {editingSlug ? (
           <div className="space-y-2">
             <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2">
-              <span className="text-sm text-stone-400 shrink-0">{window.location.origin}/p/</span>
+              <span className="text-sm text-stone-400 shrink-0">{typeof window !== 'undefined' ? window.location.origin : ''}/p/</span>
               <input
                 value={slugInput}
                 onChange={e => setSlugInput(e.target.value)}
@@ -282,6 +331,74 @@ export default function PortailParentsPage() {
               </div>
             ))}
         </div>
+      </section>
+
+      {/* Agenda de la semaine */}
+      <section className="rounded-xl border border-stone-200 bg-white p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-stone-900">Agenda de la semaine</h2>
+          <Button size="sm" onClick={() => setShowNewAgenda(true)} className="gap-1.5 bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-3.5 w-3.5" /> Ajouter
+          </Button>
+        </div>
+
+        {showNewAgenda && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-3">
+            <select
+              value={agendaDay}
+              onChange={e => setAgendaDay(e.target.value as Day)}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            >
+              {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <input
+              value={agendaSubject}
+              onChange={e => setAgendaSubject(e.target.value)}
+              placeholder="Matière (ex: Mathématiques)"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <input
+              value={agendaNote}
+              onChange={e => setAgendaNote(e.target.value)}
+              placeholder="Note (facultatif)"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleAddAgendaItem} disabled={savingAgenda || !agendaSubject.trim()} className="bg-blue-600 hover:bg-blue-700">
+                {savingAgenda ? 'Sauvegarde...' : 'Ajouter'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setShowNewAgenda(false); setAgendaSubject(''); setAgendaNote('') }}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {(portal.agenda ?? []).length === 0 && !showNewAgenda && (
+          <p className="text-sm text-stone-400 text-center py-4">Aucun élément dans l&apos;agenda.</p>
+        )}
+
+        {DAYS.filter(day => (portal.agenda ?? []).some(i => i.day === day)).map(day => (
+          <div key={day}>
+            <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">{day}</h3>
+            <div className="space-y-1.5">
+              {(portal.agenda ?? []).filter(i => i.day === day).map(item => (
+                <div key={item.id} className="flex items-center gap-3 rounded-lg border border-stone-100 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium text-stone-800">{item.subject}</span>
+                    {item.note && <span className="text-sm text-stone-400 ml-2">— {item.note}</span>}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteAgendaItem(item.id)}
+                    className="text-stone-300 hover:text-red-500 shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
     </div>
   )

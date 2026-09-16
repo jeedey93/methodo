@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const body = await req.json()
-  const { className, messages, isActive, slug } = body
+  const { className, messages, isActive, slug, agenda } = body
 
   if (slug !== undefined) {
     const normalized = toSlug(slug)
@@ -75,6 +75,7 @@ export async function PATCH(req: NextRequest) {
       ...(className !== undefined ? { className } : {}),
       ...(messages !== undefined ? { messages } : {}),
       ...(isActive !== undefined ? { isActive } : {}),
+      ...(agenda !== undefined ? { agenda } : {}),
     },
   })
 

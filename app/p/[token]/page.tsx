@@ -3,11 +3,20 @@ import { WeekGridReadOnly } from '@/components/features/planner/WeekGridReadOnly
 import type { WeekSlot } from '@/components/features/planner/WeekGrid'
 import Image from 'next/image'
 
+const DAY_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
+
 interface PortalMessage {
   id: string
   title: string
   body: string
   publishedAt: string
+}
+
+interface AgendaItem {
+  id: string
+  day: string
+  subject: string
+  note: string
 }
 
 export default async function PortailParentPage({
@@ -62,6 +71,7 @@ export default async function PortailParentPage({
 
   const slots: WeekSlot[] = (weekPlan?.slots ?? []) as unknown as WeekSlot[]
   const messages = (portal.messages ?? []) as unknown as PortalMessage[]
+  const agenda = (portal.agenda ?? []) as unknown as AgendaItem[]
   const weekLabel = monday.toLocaleDateString('fr-CA', { month: 'long', day: 'numeric', year: 'numeric' })
 
   if (isProjecteur) {
@@ -124,6 +134,37 @@ export default async function PortailParentPage({
             </div>
           )}
         </section>
+
+        {/* Agenda */}
+        {agenda.length > 0 && (
+          <section>
+            <h2 className="text-lg font-bold text-stone-900 mb-4">Agenda de la semaine</h2>
+            <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-stone-100 bg-stone-50">
+                    <th className="text-left px-4 py-2.5 font-semibold text-stone-600 w-28">Jour</th>
+                    <th className="text-left px-4 py-2.5 font-semibold text-stone-600">Matière</th>
+                    <th className="text-left px-4 py-2.5 font-semibold text-stone-600">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DAY_ORDER.filter(day => agenda.some(i => i.day === day)).flatMap(day =>
+                    agenda.filter(i => i.day === day).map((item, idx) => (
+                      <tr key={item.id} className="border-b border-stone-50 hover:bg-stone-50/50">
+                        <td className="px-4 py-2.5 text-stone-500 align-top">
+                          {idx === 0 ? <span className="font-medium text-stone-700">{day}</span> : ''}
+                        </td>
+                        <td className="px-4 py-2.5 text-stone-800 align-top font-medium">{item.subject}</td>
+                        <td className="px-4 py-2.5 text-stone-500 align-top">{item.note}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         {/* Messages */}
         <section>
