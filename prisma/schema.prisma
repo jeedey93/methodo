@@ -21,7 +21,7 @@ model User {
   resourceFavorites ResourceFavorite[]
   weekPlans         WeekPlan[]
 
-  @@map("users")
+  @@map("methodo_users")
 }
 
 model TeacherProfile {
@@ -38,7 +38,7 @@ model TeacherProfile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("teacher_profiles")
+  @@map("methodo_teacher_profiles")
 }
 
 enum DocumentType {
@@ -65,7 +65,7 @@ model Document {
   @@index([userId])
   @@index([userId, type])
   @@index([userId, isFavorite])
-  @@map("documents")
+  @@map("methodo_documents")
 }
 
 model Tag {
@@ -80,7 +80,7 @@ model Tag {
 
   @@unique([userId, name])
   @@index([userId])
-  @@map("tags")
+  @@map("methodo_tags")
 }
 
 model TagOnDocument {
@@ -92,7 +92,7 @@ model TagOnDocument {
   tag      Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([documentId, tagId])
-  @@map("tags_on_documents")
+  @@map("methodo_tags_on_documents")
 }
 
 model SharedResource {
@@ -120,7 +120,7 @@ model SharedResource {
   @@index([authorId])
   @@index([type])
   @@index([isPublished])
-  @@map("shared_resources")
+  @@map("methodo_shared_resources")
 }
 
 model ResourceFavorite {
@@ -132,7 +132,7 @@ model ResourceFavorite {
   resource SharedResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@id([userId, resourceId])
-  @@map("resource_favorites")
+  @@map("methodo_resource_favorites")
 }
 
 model WeekPlan {
@@ -148,5 +148,5 @@ model WeekPlan {
 
   @@unique([userId, weekStart])
   @@index([userId])
-  @@map("week_plans")
+  @@map("methodo_week_plans")
 }
