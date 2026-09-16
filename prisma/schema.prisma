@@ -20,6 +20,7 @@ model User {
   sharedResources   SharedResource[]
   resourceFavorites ResourceFavorite[]
   weekPlans         WeekPlan[]
+  parentPortal      ParentPortal?
 
   @@map("methodo_users")
 }
@@ -149,4 +150,19 @@ model WeekPlan {
   @@unique([userId, weekStart])
   @@index([userId])
   @@map("methodo_week_plans")
+}
+
+model ParentPortal {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  token     String   @unique @default(cuid())
+  className String   @default("") @map("class_name")
+  messages  Json     @default("[]")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("methodo_parent_portals")
 }
