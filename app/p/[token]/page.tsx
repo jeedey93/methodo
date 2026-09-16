@@ -19,7 +19,7 @@ export default async function PortailParentPage({
   const { token } = await params
 
   const portal = await prisma.parentPortal.findUnique({
-    where: { token },
+    where: { slug: token },
     include: {
       user: {
         include: { profile: { select: { firstName: true, lastName: true } } },

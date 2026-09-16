@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Copy, Check, RefreshCw, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Copy, Check, Plus, Trash2, Eye, EyeOff, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface PortalMessage {
@@ -14,7 +14,7 @@ interface PortalMessage {
 
 interface Portal {
   id: string
-  token: string
+  slug: string
   className: string
   messages: PortalMessage[]
   isActive: boolean
@@ -26,12 +26,13 @@ export default function PortailParentsPage() {
   const [copied, setCopied] = useState(false)
   const [className, setClassName] = useState('')
   const [savingClass, setSavingClass] = useState(false)
+  const [editingSlug, setEditingSlug] = useState(false)
+  const [slugInput, setSlugInput] = useState('')
+  const [savingSlug, setSavingSlug] = useState(false)
   const [showNewMsg, setShowNewMsg] = useState(false)
   const [msgTitle, setMsgTitle] = useState('')
   const [msgBody, setMsgBody] = useState('')
   const [savingMsg, setSavingMsg] = useState(false)
-  const [regenerating, setRegenerating] = useState(false)
-  const [confirmRegen, setConfirmRegen] = useState(false)
 
   useEffect(() => {
     fetch('/api/parent-portal')
@@ -39,13 +40,12 @@ export default function PortailParentsPage() {
       .then(data => {
         setPortal(data)
         setClassName(data.className ?? '')
+        setSlugInput(data.slug ?? '')
         setLoading(false)
       })
   }, [])
 
-  const portalUrl = portal
-    ? `${window.location.origin}/p/${portal.token}`
-    : ''
+  const portalUrl = portal ? `${window.location.origin}/p/${portal.slug}` : ''
 
   const handleCopy = () => {
     navigator.clipboard.writeText(portalUrl)
@@ -63,6 +63,30 @@ export default function PortailParentsPage() {
     }).then(r => r.json())
     setPortal(updated)
     toast.success(updated.isActive ? 'Portail activé' : 'Portail désactivé')
+  }
+
+  const handleSaveSlug = async () => {
+    if (!portal || !slugInput.trim()) return
+    setSavingSlug(true)
+    const res = await fetch('/api/parent-portal', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: slugInput.trim() }),
+    })
+    const data = await res.json()
+    setSavingSlug(false)
+    if (res.status === 409) {
+      toast.error('Ce lien est déjà utilisé par un autre enseignant.')
+      return
+    }
+    if (!res.ok) {
+      toast.error('Lien invalide — utilisez seulement des lettres, chiffres et tirets.')
+      return
+    }
+    setPortal(data)
+    setSlugInput(data.slug)
+    setEditingSlug(false)
+    toast.success('Lien mis à jour')
   }
 
   const handleSaveClass = async () => {
@@ -111,16 +135,6 @@ export default function PortailParentsPage() {
     toast.success('Message supprimé')
   }
 
-  const handleRegenerate = async () => {
-    if (!confirmRegen) { setConfirmRegen(true); return }
-    setRegenerating(true)
-    const updated = await fetch('/api/parent-portal/regenerate', { method: 'POST' }).then(r => r.json())
-    setPortal(updated)
-    setRegenerating(false)
-    setConfirmRegen(false)
-    toast.success('Nouveau lien généré — l\'ancien ne fonctionne plus')
-  }
-
   if (loading) {
     return <div className="flex items-center justify-center h-64 text-stone-400">Chargement...</div>
   }
@@ -151,33 +165,42 @@ export default function PortailParentsPage() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <code className="flex-1 rounded-lg bg-stone-100 px-3 py-2 text-sm text-stone-700 truncate">
-            {portalUrl}
-          </code>
-          <Button size="sm" variant="outline" onClick={handleCopy} className="gap-1.5 shrink-0">
-            {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-            {copied ? 'Copié' : 'Copier'}
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-3 pt-1">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleRegenerate}
-            disabled={regenerating}
-            className={`gap-1.5 text-sm ${confirmRegen ? 'text-red-600 hover:text-red-700' : 'text-stone-500'}`}
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${regenerating ? 'animate-spin' : ''}`} />
-            {confirmRegen ? 'Confirmer — l\'ancien lien sera invalidé' : 'Générer un nouveau lien'}
-          </Button>
-          {confirmRegen && (
-            <button onClick={() => setConfirmRegen(false)} className="text-xs text-stone-400 hover:text-stone-600">
-              Annuler
-            </button>
-          )}
-        </div>
+        {editingSlug ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2">
+              <span className="text-sm text-stone-400 shrink-0">{window.location.origin}/p/</span>
+              <input
+                value={slugInput}
+                onChange={e => setSlugInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSaveSlug() }}
+                className="flex-1 bg-transparent text-sm text-stone-800 focus:outline-none"
+                autoFocus
+              />
+            </div>
+            <p className="text-xs text-stone-400">Lettres, chiffres et tirets seulement. Les accents seront convertis automatiquement.</p>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSaveSlug} disabled={savingSlug} className="bg-blue-600 hover:bg-blue-700">
+                {savingSlug ? 'Sauvegarde...' : 'Confirmer'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setEditingSlug(false); setSlugInput(portal.slug) }}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <code className="flex-1 rounded-lg bg-stone-100 px-3 py-2 text-sm text-stone-700 truncate">
+              {portalUrl}
+            </code>
+            <Button size="sm" variant="outline" onClick={() => setEditingSlug(true)} className="gap-1.5 shrink-0">
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCopy} className="gap-1.5 shrink-0">
+              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? 'Copié' : 'Copier'}
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* Nom de la classe */}

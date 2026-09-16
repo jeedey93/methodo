@@ -8,7 +8,7 @@ export async function GET(
   const { token } = await params
 
   const portal = await prisma.parentPortal.findUnique({
-    where: { token },
+    where: { slug: token },
     include: {
       user: {
         include: {
