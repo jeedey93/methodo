@@ -80,7 +80,7 @@ export default async function DashboardPage() {
       take: 5,
       select: { id: true, title: true, type: true, updatedAt: true },
     }),
-    prisma.sharedResource.count({ where: { isPublished: true, isAiGenerated: false } }),
+    prisma.sharedResource.count({ where: { isPublished: true, isAiGenerated: false, authorId: user.id } }),
   ])
 
   const firstName = profile?.firstName ?? 'Enseignant'
@@ -106,7 +106,7 @@ export default async function DashboardPage() {
             </Link>
             <Link href="/communaute"
               className="inline-flex items-center gap-2 rounded-lg bg-white/10 border border-white/10 px-4 py-2 text-sm font-medium text-blue-100 hover:bg-white/20 transition-all">
-              <Users className="h-4 w-4" />{communityCount} ressources partagées
+              <Users className="h-4 w-4" />{communityCount > 0 ? `${communityCount} ressource${communityCount > 1 ? 's' : ''} partagée${communityCount > 1 ? 's' : ''}` : 'Partager à la communauté'}
             </Link>
           </div>
         </div>
@@ -180,8 +180,8 @@ export default async function DashboardPage() {
           <p className="font-semibold text-teal-900 text-sm">Partagez avec la communauté</p>
           <p className="text-xs text-teal-700 mt-0.5">
             {communityCount > 0
-              ? `${communityCount} ressource${communityCount > 1 ? 's' : ''} partagée${communityCount > 1 ? 's' : ''} par des collègues. À votre tour ?`
-              : 'Soyez le premier à partager du matériel avec la communauté !'}
+              ? `Vous avez partagé ${communityCount} ressource${communityCount > 1 ? 's' : ''}. Continuez à enrichir la communauté !`
+              : "Vous n'avez encore rien partagé. Vos collègues pourraient bénéficier de votre matériel !"}
           </p>
         </div>
         <Link href="/communaute"
