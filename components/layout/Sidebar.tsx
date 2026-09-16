@@ -38,10 +38,11 @@ export default function Sidebar({ firstName }: { firstName?: string }) {
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex items-center px-4 py-3 border-b border-stone-100">
-        <div className="relative h-12 w-40 overflow-hidden">
-          <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" priority />
+      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-stone-100">
+        <div className="relative h-9 w-9 overflow-hidden rounded-xl flex-shrink-0">
+          <Image src="/logo-icon.jpeg" alt="Méthodo" fill className="object-cover object-center scale-[1.15]" priority />
         </div>
+        <span className="text-lg font-bold tracking-tight text-stone-900">Méthodo</span>
       </div>
 
       {/* Nav */}

@@ -10,10 +10,11 @@ export default function LandingPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-stone-100 bg-white/90 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center">
-            <div className="relative h-12 w-44 overflow-hidden">
-              <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" priority />
+          <div className="flex items-center gap-2.5">
+            <div className="relative h-9 w-9 overflow-hidden rounded-xl flex-shrink-0">
+              <Image src="/logo-icon.jpeg" alt="Méthodo" fill className="object-cover object-center scale-[1.15]" priority />
             </div>
+            <span className="text-lg font-bold tracking-tight text-stone-900">Méthodo</span>
           </div>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#fonctionnalites" className="text-sm text-stone-500 hover:text-stone-900 transition-colors">Fonctionnalités</a>
@@ -32,10 +33,16 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center">
+      <section className="mx-auto max-w-6xl px-6 pt-16 pb-16 text-center">
         <Badge variant="secondary" className="mb-6 bg-blue-50 text-blue-700 hover:bg-blue-50">
           🇶🇨 Conçu pour les enseignants québécois
         </Badge>
+
+        {/* Grand logo centré */}
+        <div className="mx-auto mb-8 relative w-72 h-72 sm:w-80 sm:h-80">
+          <Image src="/logo.jpeg" alt="Méthodo" fill className="object-contain" priority />
+        </div>
+
         <h1 className="mb-6 text-5xl font-bold tracking-tight text-stone-900 sm:text-6xl md:text-7xl">
           L&apos;assistant intelligent<br />
           <span className="text-blue-600">des profs.</span>
@@ -262,10 +269,11 @@ export default function LandingPage() {
       <footer className="border-t border-stone-200 bg-white py-12">
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="flex items-center">
-              <div className="relative h-11 w-40 overflow-hidden">
-                <Image src="/logo.jpeg" alt="Méthodo" fill className="object-cover object-[center_42%] scale-[1.55]" />
+            <div className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 overflow-hidden rounded-lg flex-shrink-0">
+                <Image src="/logo-icon.jpeg" alt="Méthodo" fill className="object-cover object-center scale-[1.15]" />
               </div>
+              <span className="font-bold text-stone-900">Méthodo</span>
             </div>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-stone-500">
               <a href="#" className="hover:text-stone-900">À propos</a>
