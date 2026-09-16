@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const body = await req.json()
-  const { title, content, isFavorite } = body
+  const { title, content, isFavorite, metadata } = body
 
   const existing = await prisma.document.findFirst({ where: { id, userId: user.id } })
   if (!existing) return NextResponse.json({ error: 'Document introuvable' }, { status: 404 })
@@ -35,6 +35,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(title !== undefined ? { title } : {}),
       ...(content !== undefined ? { content } : {}),
       ...(isFavorite !== undefined ? { isFavorite } : {}),
+      ...(metadata !== undefined ? { metadata } : {}),
     },
   })
 

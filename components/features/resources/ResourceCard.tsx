@@ -34,6 +34,7 @@ export interface ResourceCardData {
   isFavorited: boolean
   isOwn: boolean
   isAiGenerated: boolean
+  authorId?: string
   authorName: string
   createdAt: string
   fileType?: string | null
@@ -117,7 +118,19 @@ export default function ResourceCard({ resource }: Props) {
         )}
 
         <div className="flex items-center justify-between text-xs text-stone-400">
-          <span>{resource.isAiGenerated ? 'Méthodo IA' : resource.authorName}</span>
+          <span>
+            {resource.isAiGenerated || !resource.authorId ? (
+              resource.isAiGenerated ? 'Méthodo IA' : resource.authorName
+            ) : (
+              <Link
+                href={`/communaute/profil/${resource.authorId}`}
+                onClick={e => e.stopPropagation()}
+                className="hover:text-blue-600 hover:underline transition-colors"
+              >
+                {resource.authorName}
+              </Link>
+            )}
+          </span>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Heart className="h-3 w-3" /> {favCount}

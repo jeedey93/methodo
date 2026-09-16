@@ -57,6 +57,7 @@ export async function GET(req: NextRequest) {
     downloads: r.downloads,
     isAiGenerated: r.isAiGenerated,
     createdAt: r.createdAt,
+    authorId: r.isAiGenerated ? undefined : r.authorId,
     authorName: r.author.profile
       ? `${r.author.profile.firstName} ${r.author.profile.lastName}`
       : r.author.email,

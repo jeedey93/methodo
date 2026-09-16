@@ -28,7 +28,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
   const resource = await prisma.sharedResource.findUnique({
     where: { id },
     include: {
-      author: { include: { profile: { select: { firstName: true, lastName: true } } } },
+      author: { include: { profile: { select: { firstName: true, lastName: true, avatarUrl: true } } } },
       favorites: { where: { userId: user.id } },
       _count: { select: { favorites: true } },
     },
@@ -55,7 +55,17 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
             </Badge>
             <h1 className="text-2xl font-bold text-stone-900">{resource.title}</h1>
             <p className="mt-1 text-sm text-stone-400">
-              Par {authorName} · {format(new Date(resource.createdAt), 'd MMMM yyyy', { locale: fr })}
+              {resource.isAiGenerated ? (
+                <span>Par Méthodo IA</span>
+              ) : (
+                <>
+                  Par{' '}
+                  <Link href={`/communaute/profil/${resource.authorId}`} className="hover:text-blue-600 hover:underline transition-colors">
+                    {authorName}
+                  </Link>
+                </>
+              )}
+              {' '}· {format(new Date(resource.createdAt), 'd MMMM yyyy', { locale: fr })}
             </p>
           </div>
         </div>
