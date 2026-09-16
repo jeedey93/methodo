@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma'
 import { WeekGridReadOnly } from '@/components/features/planner/WeekGridReadOnly'
-import type { WeekSlot } from '@/components/features/planner/WeekGrid'
+import type { WeekSlot, WeekPeriod } from '@/components/features/planner/WeekGrid'
 import Image from 'next/image'
 
 const DAY_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
@@ -62,7 +62,7 @@ export default async function PortailParentPage({
 
   const weekPlan = await prisma.weekPlan.findFirst({
     where: { userId: portal.userId, weekStart: { gte: monday, lt: nextMonday } },
-    select: { title: true, slots: true, weekStart: true },
+    select: { title: true, slots: true, periods: true, weekStart: true },
   })
 
   const teacherName = portal.user.profile
@@ -70,6 +70,7 @@ export default async function PortailParentPage({
     : portal.user.email
 
   const slots: WeekSlot[] = (weekPlan?.slots ?? []) as unknown as WeekSlot[]
+  const periods: WeekPeriod[] = (Array.isArray((weekPlan as any)?.periods) ? (weekPlan as any).periods : []) as WeekPeriod[]
   const messages = (portal.messages ?? []) as unknown as PortalMessage[]
   const agenda = (portal.agenda ?? []) as unknown as AgendaItem[]
   const weekLabel = monday.toLocaleDateString('fr-CA', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -90,7 +91,7 @@ export default async function PortailParentPage({
         </div>
         {weekPlan ? (
           <div className="flex-1 overflow-auto">
-            <WeekGridReadOnly slots={slots} />
+            <WeekGridReadOnly slots={slots} periods={periods} />
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-stone-400 text-lg">
@@ -126,7 +127,7 @@ export default async function PortailParentPage({
               {weekPlan.title && weekPlan.title !== 'Ma semaine' && (
                 <p className="text-sm text-stone-500 mb-3">{weekPlan.title}</p>
               )}
-              <WeekGridReadOnly slots={slots} />
+              <WeekGridReadOnly slots={slots} periods={periods} />
             </div>
           ) : (
             <div className="rounded-xl border border-stone-200 bg-white p-8 text-center text-stone-400">

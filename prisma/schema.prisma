@@ -145,6 +145,7 @@ model WeekPlan {
   title     String   @default("Ma semaine")
   weekStart DateTime @map("week_start")
   slots     Json     @default("[]")
+  periods   Json     @default("[]") @map("periods")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

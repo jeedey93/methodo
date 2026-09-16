@@ -2,11 +2,11 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import WeekGrid, { WeekSlot } from '@/components/features/planner/WeekGrid'
+import WeekGrid, { WeekSlot, WeekPeriod } from '@/components/features/planner/WeekGrid'
 import WeekNavClient from './WeekNavClient'
 
 export default async function WeekPlanPage({ params }: { params: Promise<{ weekId: string }> }) {
@@ -19,6 +19,7 @@ export default async function WeekPlanPage({ params }: { params: Promise<{ weekI
   if (!plan || plan.userId !== user.id) notFound()
 
   const slots = (Array.isArray(plan.slots) ? plan.slots : []) as unknown as WeekSlot[]
+  const periods = (Array.isArray((plan as any).periods) ? (plan as any).periods : []) as unknown as WeekPeriod[]
 
   return (
     <div className="space-y-4">
@@ -37,7 +38,7 @@ export default async function WeekPlanPage({ params }: { params: Promise<{ weekI
         <WeekNavClient planId={weekId} weekStart={plan.weekStart.toISOString()} />
       </div>
 
-      <WeekGrid planId={weekId} initialSlots={slots} />
+      <WeekGrid planId={weekId} initialSlots={slots} initialPeriods={periods} />
     </div>
   )
 }

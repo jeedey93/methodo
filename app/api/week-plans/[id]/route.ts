@@ -29,6 +29,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data: {
       ...(body.slots !== undefined ? { slots: body.slots } : {}),
       ...(body.title !== undefined ? { title: body.title } : {}),
+      ...(body.periods !== undefined ? { periods: body.periods } : {}),
     },
   })
 
