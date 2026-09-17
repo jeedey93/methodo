@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   Home, Share2, Calendar, PenLine, BookOpen,
-  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, GraduationCap, ChevronRight
+  LogOut, Menu, X, Users, MonitorPlay, HelpCircle, GraduationCap, ChevronRight, LayoutTemplate
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -28,6 +28,7 @@ const navSections = [
     items: [
       { href: '/ma-classe', icon: GraduationCap, label: 'Ma classe' },
       { href: '/classe', icon: MonitorPlay, label: 'Outils de classe' },
+      { href: '/tableau-blanc', icon: LayoutTemplate, label: 'Tableau blanc' },
     ],
   },
   {

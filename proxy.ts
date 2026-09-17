@@ -41,7 +41,8 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/portail-parents') ||
     request.nextUrl.pathname.startsWith('/classe') ||
     request.nextUrl.pathname.startsWith('/ma-classe') ||
-    request.nextUrl.pathname.startsWith('/aide')
+    request.nextUrl.pathname.startsWith('/aide') ||
+    request.nextUrl.pathname.startsWith('/tableau-blanc')
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/connexion') ||
     request.nextUrl.pathname.startsWith('/inscription')
