@@ -1013,6 +1013,19 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
             {fullscreen?<Minimize2 className="h-5 w-5"/>:<Maximize2 className="h-5 w-5"/>}
           </ToolBtn>
 
+          {/* Divider */}
+          <div className="w-px h-12 bg-white/10 flex-shrink-0"/>
+
+          {/* Clear page */}
+          <ToolBtn danger onClick={()=>{
+            if (window.confirm('Effacer tout le contenu de cette page ?')) {
+              updateActivePage({ widgets: [], paths: [], background: { type: 'color', value: '#1e1b4b' } })
+              setSelectedId(null); setSelectedPathId(null)
+            }
+          }} label="Effacer page">
+            <Trash2 className="h-5 w-5"/>
+          </ToolBtn>
+
           <div className="flex-1 min-w-4"/>
           <span className="text-xs text-white/25 self-center pb-1 flex-shrink-0">{saving?'Sauvegarde…':'✓'}</span>
         </div>
