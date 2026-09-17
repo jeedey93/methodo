@@ -492,7 +492,15 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   }
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (!drawMode || drawTool === 'eraser') return
+    if (!drawMode) return
+    if (drawTool === 'eraser') {
+      // Erase the hovered path on mousedown
+      if (hoveredPathId && activePage) {
+        updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== hoveredPathId) })
+        setHoveredPathId(null)
+      }
+      return
+    }
     const { x, y } = getCanvasXY(e)
     setIsDrawing(true)
     currentPath.current = { id: uid(), points: [{x,y}], startX: x, startY: y }
@@ -500,6 +508,24 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   }
 
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    // Eraser hover highlight + drag-erase
+    if (drawTool === 'eraser' && activePage) {
+      const { x, y } = getCanvasXY(e)
+      const threshold = 4
+      const hit = (activePage.paths ?? []).find(path => {
+        const coords = path.points.match(/-?[\d.]+,-?[\d.]+/g) ?? []
+        return coords.some(pt => {
+          const [px, py] = pt.split(',').map(Number)
+          return Math.abs(px - x) < threshold && Math.abs(py - y) < threshold
+        })
+      })
+      setHoveredPathId(hit?.id ?? null)
+      // Erase while mouse button held
+      if (e.buttons === 1 && hit) {
+        updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== hit.id) })
+        setHoveredPathId(null)
+      }
+    }
     if (!isDrawing || !currentPath.current || !activePage) return
     const { x, y } = getCanvasXY(e)
     if (drawTool === 'pencil' || drawTool === 'highlighter') {
@@ -515,6 +541,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   }
 
   const [livePathD, setLivePathD] = useState('')
+  const [hoveredPathId, setHoveredPathId] = useState<string|null>(null)
   useEffect(() => {
     const el = svgRef.current
     if (!el) return
@@ -872,7 +899,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
           style={{...bgStyle, cursor: drawTool==='eraser'?'cell':drawMode?'crosshair':'default'}}
           onClick={e=>{
             setSelectedId(null); setShowBgPanel(false); setShowAddPanel(false); setShowDrawPanel(false)
-            if (drawTool==='eraser') handleEraserClick(e)
           }}
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
@@ -882,8 +908,11 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
           {/* SVG draw layer */}
           <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
             {(activePage.paths ?? []).map(path=>(
-              <path key={path.id} d={path.points} stroke={path.color} strokeWidth={path.width * 0.15}
-                fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={path.opacity}/>
+              <path key={path.id} d={path.points}
+                stroke={drawTool==='eraser'&&hoveredPathId===path.id ? '#ef4444' : path.color}
+                strokeWidth={(drawTool==='eraser'&&hoveredPathId===path.id ? path.width*0.2 : path.width*0.15)}
+                fill="none" strokeLinecap="round" strokeLinejoin="round"
+                opacity={drawTool==='eraser'&&hoveredPathId===path.id ? 0.6 : path.opacity}/>
             ))}
             {/* Live preview */}
             {isDrawing && livePathD && (
