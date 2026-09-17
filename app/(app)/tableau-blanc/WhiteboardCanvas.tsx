@@ -94,7 +94,7 @@ function ClockDisplay({ widget }: { widget: ClockWidget }) {
   const s = time.getSeconds().toString().padStart(2, '0')
   return (
     <div className="flex items-center justify-center h-full select-none"
-      style={{ color: widget.color, fontFamily: 'monospace', containerType: 'size' }}>
+      style={{ color: widget.color, fontFamily: 'monospace' }}>
       <span className="font-bold tabular-nums drop-shadow-lg"
         style={{ fontSize: widget.showSeconds ? 'min(18cqw, 45cqh)' : 'min(24cqw, 50cqh)' }}>
         {h}:{m}{widget.showSeconds ? `:${s}` : ''}
@@ -134,7 +134,7 @@ function TimerDisplay({ widget }: { widget: TimerWidget }) {
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-[8cqh] select-none"
-      style={{ color: isDone ? '#ef4444' : isLow ? '#f97316' : widget.color, containerType: 'size' }}>
+      style={{ color: isDone ? '#ef4444' : isLow ? '#f97316' : widget.color }}>
       <span className="font-bold tabular-nums drop-shadow-lg"
         style={{ fontFamily: 'monospace', fontSize: 'min(24cqw, 50cqh)' }}>
         {mm}:{ss}
@@ -710,12 +710,12 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
                     </div>
               )}
               {widget.type === 'clock' && (
-                <div className="h-full w-full bg-black/20 backdrop-blur-sm rounded-xl">
+                <div className="h-full w-full bg-black/20 backdrop-blur-sm rounded-xl" style={{ containerType: 'size' }}>
                   <ClockDisplay widget={widget} />
                 </div>
               )}
               {widget.type === 'timer' && (
-                <div className="h-full w-full bg-black/20 backdrop-blur-sm rounded-xl">
+                <div className="h-full w-full bg-black/20 backdrop-blur-sm rounded-xl" style={{ containerType: 'size' }}>
                   <TimerDisplay widget={widget} />
                 </div>
               )}
