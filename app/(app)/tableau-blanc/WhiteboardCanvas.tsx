@@ -485,6 +485,14 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
   // ── Drawing ────────────────────────────────────────────────────────────────
 
+  const getPathBBox = (d: string): { minX: number; minY: number; maxX: number; maxY: number } => {
+    const coords = d.match(/-?[\d.]+,-?[\d.]+/g) ?? []
+    if (coords.length === 0) return { minX: 0, minY: 0, maxX: 0, maxY: 0 }
+    const xs = coords.map(c => Number(c.split(',')[0]))
+    const ys = coords.map(c => Number(c.split(',')[1]))
+    return { minX: Math.min(...xs), minY: Math.min(...ys), maxX: Math.max(...xs), maxY: Math.max(...ys) }
+  }
+
   const getCanvasXY = (e: React.MouseEvent) => {
     if (!canvasRef.current) return { x: 0, y: 0 }
     const r = canvasRef.current.getBoundingClientRect()
@@ -494,13 +502,13 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     if (!drawMode) return
     if (drawTool === 'eraser') {
-      // Erase the hovered path on mousedown
       if (hoveredPathId && activePage) {
         updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== hoveredPathId) })
         setHoveredPathId(null)
       }
       return
     }
+    setSelectedPathId(null)
     const { x, y } = getCanvasXY(e)
     setIsDrawing(true)
     currentPath.current = { id: uid(), points: [{x,y}], startX: x, startY: y }
@@ -542,6 +550,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
   const [livePathD, setLivePathD] = useState('')
   const [hoveredPathId, setHoveredPathId] = useState<string|null>(null)
+  const [selectedPathId, setSelectedPathId] = useState<string|null>(null)
   useEffect(() => {
     const el = svgRef.current
     if (!el) return
@@ -898,7 +907,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
         <div ref={canvasRef} className="relative flex-1 overflow-hidden"
           style={{...bgStyle, cursor: drawTool==='eraser'?'cell':drawMode?'crosshair':'default'}}
           onClick={e=>{
-            setSelectedId(null); setShowBgPanel(false); setShowAddPanel(false); setShowDrawPanel(false)
+            setSelectedId(null); setSelectedPathId(null)
+            setShowBgPanel(false); setShowAddPanel(false); setShowDrawPanel(false)
           }}
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
@@ -906,20 +916,67 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
           onMouseLeave={()=>{ if(isDrawing) setIsDrawing(false) }}>
 
           {/* SVG draw layer */}
-          <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {(activePage.paths ?? []).map(path=>(
-              <path key={path.id} d={path.points}
-                stroke={drawTool==='eraser'&&hoveredPathId===path.id ? '#ef4444' : path.color}
-                strokeWidth={(drawTool==='eraser'&&hoveredPathId===path.id ? path.width*0.2 : path.width*0.15)}
-                fill="none" strokeLinecap="round" strokeLinejoin="round"
-                opacity={drawTool==='eraser'&&hoveredPathId===path.id ? 0.6 : path.opacity}/>
-            ))}
+          <svg ref={svgRef} className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none"
+            style={{ pointerEvents: drawMode ? 'all' : 'none' }}>
+            {(activePage.paths ?? []).map(path => {
+              const isSelected = selectedPathId === path.id
+              const isHovered = hoveredPathId === path.id
+              const isEraseHover = drawTool === 'eraser' && isHovered
+              const bbox = isSelected ? getPathBBox(path.points) : null
+              return (
+                <g key={path.id}>
+                  {/* Invisible thick hit area */}
+                  {drawTool === 'select' && (
+                    <path d={path.points} stroke="transparent" strokeWidth={3} fill="none" strokeLinecap="round"
+                      style={{ cursor: 'pointer', pointerEvents: 'stroke' }}
+                      onClick={e => { e.stopPropagation(); setSelectedPathId(path.id) }}
+                      onMouseEnter={() => setHoveredPathId(path.id)}
+                      onMouseLeave={() => setHoveredPathId(null)}/>
+                  )}
+                  {/* Visible path */}
+                  <path d={path.points}
+                    stroke={isEraseHover ? '#ef4444' : isSelected ? '#60a5fa' : isHovered && drawTool === 'select' ? '#93c5fd' : path.color}
+                    strokeWidth={isEraseHover ? path.width * 0.22 : isSelected ? path.width * 0.22 : path.width * 0.15}
+                    fill="none" strokeLinecap="round" strokeLinejoin="round"
+                    opacity={isEraseHover ? 0.6 : path.opacity}
+                    style={{ pointerEvents: 'none' }}/>
+                  {/* Selection bounding box */}
+                  {isSelected && bbox && (
+                    <rect x={bbox.minX - 1} y={bbox.minY - 1}
+                      width={bbox.maxX - bbox.minX + 2} height={bbox.maxY - bbox.minY + 2}
+                      fill="none" stroke="#60a5fa" strokeWidth={0.3} strokeDasharray="1,0.5"
+                      style={{ pointerEvents: 'none' }}/>
+                  )}
+                </g>
+              )
+            })}
             {/* Live preview */}
             {isDrawing && livePathD && (
               <path d={livePathD} stroke={drawColor} strokeWidth={(drawTool==='highlighter'?drawWidth*4:drawWidth)*0.15}
-                fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={drawTool==='highlighter'?0.4:1}/>
+                fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={drawTool==='highlighter'?0.4:1}
+                style={{ pointerEvents: 'none' }}/>
             )}
           </svg>
+
+          {/* Delete button for selected path */}
+          {selectedPathId && drawTool === 'select' && (() => {
+            const path = (activePage.paths ?? []).find(p => p.id === selectedPathId)
+            if (!path) return null
+            const bbox = getPathBBox(path.points)
+            return (
+              <button
+                style={{ position: 'absolute', left: `${bbox.maxX}%`, top: `${bbox.minY}%`, transform: 'translate(-50%, -50%)', zIndex: 50 }}
+                onMouseDown={e => e.stopPropagation()}
+                onClick={e => {
+                  e.stopPropagation()
+                  updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== selectedPathId) })
+                  setSelectedPathId(null)
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition-colors">
+                <X className="h-3 w-3"/>
+              </button>
+            )
+          })()}
 
           {/* Widgets */}
           {activePage.widgets.map(widget=>(
