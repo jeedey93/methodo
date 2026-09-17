@@ -94,8 +94,9 @@ function ClockDisplay({ widget }: { widget: ClockWidget }) {
   const s = time.getSeconds().toString().padStart(2, '0')
   return (
     <div className="flex items-center justify-center h-full select-none"
-      style={{ color: widget.color, fontFamily: 'monospace', fontSize: Math.min(widget.w / 5, widget.h / 1.6) }}>
-      <span className="font-bold tabular-nums drop-shadow-lg">
+      style={{ color: widget.color, fontFamily: 'monospace', containerType: 'size' }}>
+      <span className="font-bold tabular-nums drop-shadow-lg"
+        style={{ fontSize: widget.showSeconds ? 'min(18cqw, 45cqh)' : 'min(24cqw, 50cqh)' }}>
         {h}:{m}{widget.showSeconds ? `:${s}` : ''}
       </span>
     </div>
@@ -132,22 +133,22 @@ function TimerDisplay({ widget }: { widget: TimerWidget }) {
   const isDone = remaining === 0
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-2 select-none"
-      style={{ color: isDone ? '#ef4444' : isLow ? '#f97316' : widget.color }}>
+    <div className="flex flex-col items-center justify-center h-full gap-[8cqh] select-none"
+      style={{ color: isDone ? '#ef4444' : isLow ? '#f97316' : widget.color, containerType: 'size' }}>
       <span className="font-bold tabular-nums drop-shadow-lg"
-        style={{ fontFamily: 'monospace', fontSize: Math.min(widget.w / 4.5, widget.h / 1.8) }}>
+        style={{ fontFamily: 'monospace', fontSize: 'min(24cqw, 50cqh)' }}>
         {mm}:{ss}
       </span>
-      <div className="flex gap-2">
+      <div className="flex gap-2" style={{ fontSize: 'min(4cqw, 10cqh)' }}>
         <button onMouseDown={e => e.stopPropagation()}
           onClick={e => { e.stopPropagation(); setRunning(r => !r) }}
-          className="rounded-lg bg-white/20 hover:bg-white/30 px-3 py-1 text-xs font-bold backdrop-blur-sm transition-colors">
+          className="rounded-lg bg-white/20 hover:bg-white/30 px-[1.5em] py-[0.4em] font-bold backdrop-blur-sm transition-colors">
           {running ? 'Pause' : isDone ? 'Reset' : 'Start'}
         </button>
         {(running || isDone) && (
           <button onMouseDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); setRunning(false); setRemaining(widget.duration) }}
-            className="rounded-lg bg-white/20 hover:bg-white/30 px-3 py-1 text-xs font-bold backdrop-blur-sm transition-colors">
+            className="rounded-lg bg-white/20 hover:bg-white/30 px-[1em] py-[0.4em] font-bold backdrop-blur-sm transition-colors">
             ↺
           </button>
         )}
