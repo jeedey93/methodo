@@ -557,51 +557,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-slate-950">
 
-      {/* Pages tabs bar */}
-      <div
-        className="flex items-center gap-1 px-3 py-1.5 bg-slate-950 border-b border-white/10 overflow-x-auto flex-shrink-0"
-        onClick={e => e.stopPropagation()}
-      >
-        {pages.map(page => (
-          <div key={page.id} className="flex items-center flex-shrink-0">
-            {renamingPageId === page.id ? (
-              <input
-                autoFocus
-                value={renameValue}
-                onChange={e => setRenameValue(e.target.value)}
-                onBlur={() => commitRename(page.id)}
-                onKeyDown={e => { if (e.key === 'Enter') commitRename(page.id); if (e.key === 'Escape') setRenamingPageId(null) }}
-                className="rounded-md bg-white/20 px-2 py-1 text-xs text-white focus:outline-none w-24"
-              />
-            ) : (
-              <button
-                onClick={() => { setActivePageId(page.id); setSelectedId(null) }}
-                onDoubleClick={() => startRename(page)}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${page.id === activePageId ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/10'}`}
-              >
-                {page.name}
-              </button>
-            )}
-            {pages.length > 1 && (
-              <button
-                onClick={() => deletePage(page.id)}
-                className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white/30 hover:bg-red-500/30 hover:text-red-300 transition-colors"
-              >
-                <X className="h-2.5 w-2.5" />
-              </button>
-            )}
-          </div>
-        ))}
-        <button
-          onClick={addPage}
-          className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white transition-colors"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
-        <div className="flex-1" />
-        <span className="text-xs text-white/20 mr-1">{saving ? 'Sauvegarde...' : 'Sauvegardé'}</span>
-      </div>
-
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 py-2 bg-slate-900/95 border-b border-white/10 flex-shrink-0"
         onClick={e => e.stopPropagation()}>
@@ -661,6 +616,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
         <div className="flex-1" />
 
+        <span className="text-xs text-white/30">{saving ? 'Sauvegarde...' : 'Sauvegardé'}</span>
+
         {/* Fullscreen */}
         <button onClick={toggleFullscreen}
           className="flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors">
@@ -671,6 +628,109 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
       {/* Canvas + side panel */}
       <div className="flex flex-1 min-h-0">
+
+        {/* Pages panel — left */}
+        <div className="w-36 flex-shrink-0 bg-slate-950 border-r border-white/10 flex flex-col overflow-y-auto"
+          onClick={e => e.stopPropagation()}>
+          <div className="flex-1 p-2 space-y-2">
+            {pages.map((page, idx) => {
+              const pageBg = page.background
+              const pageBgStyle: React.CSSProperties = pageBg.type === 'color'
+                ? { backgroundColor: pageBg.value }
+                : { backgroundImage: `url(${pageBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              const isActive = page.id === activePageId
+              return (
+                <div key={page.id} className="group relative">
+                  <button
+                    onClick={() => { setActivePageId(page.id); setSelectedId(null) }}
+                    className={`w-full rounded-lg overflow-hidden transition-all ${isActive ? 'ring-2 ring-white shadow-lg' : 'ring-1 ring-white/10 hover:ring-white/40'}`}
+                  >
+                    {/* Miniature preview */}
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%', ...pageBgStyle }}>
+                      {/* Widgets as tiny dots/blocks */}
+                      {page.widgets.map(w => (
+                        <div key={w.id} className="absolute rounded-sm opacity-80"
+                          style={{
+                            left: `${w.x}%`, top: `${w.y}%`,
+                            width: `${w.w}%`, height: `${w.h}%`,
+                            backgroundColor: w.type === 'text'
+                              ? ((w as TextWidget).bg !== 'transparent' ? (w as TextWidget).bg : (w as TextWidget).color + '40')
+                              : w.type === 'image' ? 'rgba(255,255,255,0.15)'
+                              : 'rgba(0,0,0,0.3)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            overflow: 'hidden',
+                          }}>
+                          {w.type === 'text' && (w as TextWidget).content && (
+                            <span style={{
+                              color: (w as TextWidget).color,
+                              fontSize: '3px',
+                              lineHeight: 1.2,
+                              fontWeight: (w as TextWidget).bold ? 700 : 400,
+                              padding: '1px',
+                              wordBreak: 'break-all',
+                            }}>
+                              {(w as TextWidget).content.slice(0, 30)}
+                            </span>
+                          )}
+                          {w.type === 'image' && (w as ImageWidget).src && (
+                            <img src={(w as ImageWidget).src} alt="" className="w-full h-full" style={{ objectFit: 'cover' }} />
+                          )}
+                          {w.type === 'clock' && (
+                            <span style={{ color: (w as ClockWidget).color, fontSize: '4px', fontFamily: 'monospace' }}>00:00</span>
+                          )}
+                          {w.type === 'timer' && (
+                            <span style={{ color: (w as TimerWidget).color, fontSize: '4px', fontFamily: 'monospace' }}>00:00</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Page name */}
+                    <div className={`px-2 py-1 text-left ${isActive ? 'bg-white/20' : 'bg-black/40'}`}>
+                      {renamingPageId === page.id ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onBlur={() => commitRename(page.id)}
+                          onKeyDown={e => { if (e.key === 'Enter') commitRename(page.id); if (e.key === 'Escape') setRenamingPageId(null) }}
+                          onClick={e => e.stopPropagation()}
+                          onMouseDown={e => e.stopPropagation()}
+                          className="w-full bg-transparent text-white text-xs focus:outline-none"
+                        />
+                      ) : (
+                        <span
+                          className="text-xs text-white/80 truncate block"
+                          onDoubleClick={e => { e.stopPropagation(); startRename(page) }}
+                        >
+                          {page.name}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  {/* Delete button */}
+                  {pages.length > 1 && (
+                    <button
+                      onClick={e => { e.stopPropagation(); deletePage(page.id) }}
+                      className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white/40 opacity-0 group-hover:opacity-100 hover:bg-red-500/80 hover:text-white transition-all"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  )}
+                  <span className="absolute bottom-6 left-1 text-white/30 text-[9px]">{idx + 1}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Add page button */}
+          <div className="p-2 border-t border-white/10">
+            <button onClick={addPage}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/20 py-2 text-xs text-white/40 hover:border-white/40 hover:text-white/80 transition-colors">
+              <Plus className="h-3.5 w-3.5" />Nouvelle page
+            </button>
+          </div>
+        </div>
+
         {/* Canvas */}
         <div
           ref={canvasRef}
