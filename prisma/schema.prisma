@@ -22,7 +22,7 @@ model User {
   weekPlans         WeekPlan[]
   parentPortal      ParentPortal?
   students          Student[]
-  whiteboard        Whiteboard?
+  whiteboardPages   WhiteboardPage[]
 
   @@map("methodo_users")
 }
@@ -187,15 +187,18 @@ model Student {
   @@map("methodo_students")
 }
 
-model Whiteboard {
-  id        String   @id @default(cuid())
-  userId    String   @unique @map("user_id")
-  widgets   Json     @default("[]")
-  background Json    @default("{\"type\":\"color\",\"value\":\"#1e1b4b\"}")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model WhiteboardPage {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  name       String   @default("Page 1")
+  widgets    Json     @default("[]")
+  background Json     @default("{\"type\":\"color\",\"value\":\"#1e1b4b\"}")
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("methodo_whiteboards")
+  @@index([userId])
+  @@map("methodo_whiteboard_pages")
 }

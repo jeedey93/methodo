@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { toast } from 'sonner'
 import {
   Type, Image as ImageIcon, Clock, Timer, Trash2, Plus,
-  Maximize2, Minimize2, Save, ChevronDown, X, Palette,
-  GripHorizontal, AlignLeft, Bold,
+  Maximize2, Minimize2, X, Palette, ChevronDown,
 } from 'lucide-react'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -57,6 +55,14 @@ interface Background {
   value: string
 }
 
+export interface PageData {
+  id: string
+  name: string
+  widgets: Widget[]
+  background: Background
+  order: number
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const BG_PRESETS = [
@@ -98,7 +104,7 @@ function ClockDisplay({ widget }: { widget: ClockWidget }) {
 
 // ── Timer widget ─────────────────────────────────────────────────────────────
 
-function TimerDisplay({ widget, onUpdate }: { widget: TimerWidget; onUpdate: (w: TimerWidget) => void }) {
+function TimerDisplay({ widget }: { widget: TimerWidget }) {
   const [remaining, setRemaining] = useState(widget.duration)
   const [running, setRunning] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -109,11 +115,7 @@ function TimerDisplay({ widget, onUpdate }: { widget: TimerWidget; onUpdate: (w:
     if (running) {
       intervalRef.current = setInterval(() => {
         setRemaining(r => {
-          if (r <= 1) {
-            setRunning(false)
-            clearInterval(intervalRef.current!)
-            return 0
-          }
+          if (r <= 1) { setRunning(false); clearInterval(intervalRef.current!); return 0 }
           return r - 1
         })
       }, 1000)
@@ -123,8 +125,8 @@ function TimerDisplay({ widget, onUpdate }: { widget: TimerWidget; onUpdate: (w:
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [running])
 
-  const m = Math.floor(remaining / 60).toString().padStart(2, '0')
-  const s = (remaining % 60).toString().padStart(2, '0')
+  const mm = Math.floor(remaining / 60).toString().padStart(2, '0')
+  const ss = (remaining % 60).toString().padStart(2, '0')
   const pct = widget.duration > 0 ? remaining / widget.duration : 0
   const isLow = pct < 0.2 && remaining > 0
   const isDone = remaining === 0
@@ -134,18 +136,16 @@ function TimerDisplay({ widget, onUpdate }: { widget: TimerWidget; onUpdate: (w:
       style={{ color: isDone ? '#ef4444' : isLow ? '#f97316' : widget.color }}>
       <span className="font-bold tabular-nums drop-shadow-lg"
         style={{ fontFamily: 'monospace', fontSize: Math.min(widget.w / 4.5, widget.h / 1.8) }}>
-        {m}:{s}
+        {mm}:{ss}
       </span>
       <div className="flex gap-2">
-        <button
-          onMouseDown={e => e.stopPropagation()}
+        <button onMouseDown={e => e.stopPropagation()}
           onClick={e => { e.stopPropagation(); setRunning(r => !r) }}
           className="rounded-lg bg-white/20 hover:bg-white/30 px-3 py-1 text-xs font-bold backdrop-blur-sm transition-colors">
           {running ? 'Pause' : isDone ? 'Reset' : 'Start'}
         </button>
         {(running || isDone) && (
-          <button
-            onMouseDown={e => e.stopPropagation()}
+          <button onMouseDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); setRunning(false); setRemaining(widget.duration) }}
             className="rounded-lg bg-white/20 hover:bg-white/30 px-3 py-1 text-xs font-bold backdrop-blur-sm transition-colors">
             ↺
@@ -156,9 +156,9 @@ function TimerDisplay({ widget, onUpdate }: { widget: TimerWidget; onUpdate: (w:
   )
 }
 
-// ── Widget shell (drag + controls) ──────────────────────────────────────────
+// ── Widget shell ─────────────────────────────────────────────────────────────
 
-interface WidgetShellProps {
+interface ShellProps {
   widget: Widget
   selected: boolean
   onSelect: () => void
@@ -169,7 +169,7 @@ interface WidgetShellProps {
   canvasRef: React.RefObject<HTMLDivElement | null>
 }
 
-function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, children, canvasRef }: WidgetShellProps) {
+function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, children, canvasRef }: ShellProps) {
   const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null)
   const resizeState = useRef<{ startX: number; startY: number; origW: number; origH: number } | null>(null)
 
@@ -177,7 +177,7 @@ function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, c
     e.stopPropagation()
     onSelect()
     dragState.current = { startX: e.clientX, startY: e.clientY, origX: widget.x, origY: widget.y }
-    const handleMouseMove = (ev: MouseEvent) => {
+    const handleMove = (ev: MouseEvent) => {
       if (!dragState.current || !canvasRef.current) return
       const rect = canvasRef.current.getBoundingClientRect()
       const dx = (ev.clientX - dragState.current.startX) / rect.width * 100
@@ -185,32 +185,32 @@ function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, c
       onMove(Math.max(0, Math.min(95, dragState.current.origX + dx)),
              Math.max(0, Math.min(95, dragState.current.origY + dy)))
     }
-    const onUp = () => {
+    const handleUp = () => {
       dragState.current = null
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', onUp)
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('mouseup', handleUp)
     }
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', onUp)
+    window.addEventListener('mousemove', handleMove)
+    window.addEventListener('mouseup', handleUp)
   }
 
   const handleResizeStart = (e: React.MouseEvent) => {
     e.stopPropagation()
     resizeState.current = { startX: e.clientX, startY: e.clientY, origW: widget.w, origH: widget.h }
-    const handleMouseMove = (ev: MouseEvent) => {
+    const handleMove = (ev: MouseEvent) => {
       if (!resizeState.current || !canvasRef.current) return
       const rect = canvasRef.current.getBoundingClientRect()
       const dw = (ev.clientX - resizeState.current.startX) / rect.width * 100
       const dh = (ev.clientY - resizeState.current.startY) / rect.height * 100
       onResize(Math.max(5, resizeState.current.origW + dw), Math.max(3, resizeState.current.origH + dh))
     }
-    const onUp = () => {
+    const handleUp = () => {
       resizeState.current = null
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', onUp)
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('mouseup', handleUp)
     }
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', onUp)
+    window.addEventListener('mousemove', handleMove)
+    window.addEventListener('mouseup', handleUp)
   }
 
   return (
@@ -228,19 +228,14 @@ function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, c
       className={`group rounded-xl overflow-hidden transition-shadow ${selected ? 'ring-2 ring-white/70 shadow-2xl' : 'hover:ring-1 hover:ring-white/30'}`}
     >
       {children}
-
-      {/* Controls (visible on hover / selected) */}
       {selected && (
         <button
           onMouseDown={e => e.stopPropagation()}
           onClick={e => { e.stopPropagation(); onDelete() }}
-          className="absolute top-1.5 right-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-90 hover:opacity-100 shadow transition-opacity"
-        >
+          className="absolute top-1.5 right-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-90 hover:opacity-100 shadow transition-opacity">
           <X className="h-3 w-3" />
         </button>
       )}
-
-      {/* Resize handle */}
       <div
         onMouseDown={handleResizeStart}
         className="absolute bottom-0 right-0 h-5 w-5 cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity"
@@ -250,23 +245,18 @@ function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, c
   )
 }
 
-// ── Text editor panel ────────────────────────────────────────────────────────
+// ── Edit panels ───────────────────────────────────────────────────────────────
 
 function TextPanel({ widget, onChange }: { widget: TextWidget; onChange: (w: TextWidget) => void }) {
   return (
     <div className="space-y-3">
-      <textarea
-        value={widget.content}
-        onChange={e => onChange({ ...widget, content: e.target.value })}
-        rows={3}
-        placeholder="Votre texte..."
-        className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
-      />
+      <textarea value={widget.content} onChange={e => onChange({ ...widget, content: e.target.value })}
+        rows={3} placeholder="Votre texte..."
+        className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 resize-none" />
       <div className="grid grid-cols-2 gap-2">
         <div>
           <p className="text-xs text-white/50 mb-1">Taille</p>
-          <select value={widget.fontSize}
-            onChange={e => onChange({ ...widget, fontSize: Number(e.target.value) })}
+          <select value={widget.fontSize} onChange={e => onChange({ ...widget, fontSize: Number(e.target.value) })}
             className="w-full rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white focus:outline-none">
             {FONT_SIZES.map(s => <option key={s} value={s} className="bg-slate-800">{s}px</option>)}
           </select>
@@ -284,7 +274,7 @@ function TextPanel({ widget, onChange }: { widget: TextWidget; onChange: (w: Tex
         </div>
       </div>
       <div>
-        <p className="text-xs text-white/50 mb-1">Couleur du texte</p>
+        <p className="text-xs text-white/50 mb-1">Couleur</p>
         <div className="flex gap-1.5 flex-wrap">
           {TEXT_COLORS.map(c => (
             <button key={c} onClick={() => onChange({ ...widget, color: c })}
@@ -299,29 +289,80 @@ function TextPanel({ widget, onChange }: { widget: TextWidget; onChange: (w: Tex
           G
         </button>
         <div className="flex-1">
-          <p className="text-xs text-white/50 mb-1">Fond (opacité)</p>
-          <input type="color" value={widget.bg === 'transparent' ? '#000000' : widget.bg}
-            onChange={e => onChange({ ...widget, bg: e.target.value + '99' })}
-            className="h-6 w-12 rounded cursor-pointer border-0 bg-transparent" />
-          <button onClick={() => onChange({ ...widget, bg: 'transparent' })}
-            className="ml-2 text-xs text-white/50 hover:text-white/80">Aucun</button>
+          <p className="text-xs text-white/50 mb-1">Fond</p>
+          <div className="flex items-center gap-2">
+            <input type="color" value={widget.bg === 'transparent' ? '#000000' : widget.bg.slice(0, 7)}
+              onChange={e => onChange({ ...widget, bg: e.target.value + '99' })}
+              className="h-6 w-10 rounded cursor-pointer border-0 bg-transparent" />
+            <button onClick={() => onChange({ ...widget, bg: 'transparent' })}
+              className="text-xs text-white/50 hover:text-white/80">Aucun</button>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-// ── Timer editor panel ───────────────────────────────────────────────────────
+function ImagePanel({ widget, onChange }: { widget: ImageWidget; onChange: (w: ImageWidget) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => onChange({ ...widget, src: ev.target?.result as string })
+    reader.readAsDataURL(file)
+  }
+  return (
+    <div className="space-y-3">
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      <button onClick={() => fileRef.current?.click()}
+        className="w-full rounded-lg border border-dashed border-white/30 py-3 text-sm text-white/70 hover:border-white/60 hover:text-white transition-colors">
+        Choisir une image
+      </button>
+      <div>
+        <p className="text-xs text-white/50 mb-1">Affichage</p>
+        <div className="flex gap-2">
+          {(['contain', 'cover'] as const).map(fit => (
+            <button key={fit} onClick={() => onChange({ ...widget, objectFit: fit })}
+              className={`flex-1 rounded-lg py-1.5 text-xs transition-colors ${widget.objectFit === fit ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}>
+              {fit === 'contain' ? 'Contenu' : 'Remplir'}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ClockPanel({ widget, onChange }: { widget: ClockWidget; onChange: (w: ClockWidget) => void }) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-xs text-white/50 mb-1">Couleur</p>
+        <div className="flex gap-1.5 flex-wrap">
+          {TEXT_COLORS.map(c => (
+            <button key={c} onClick={() => onChange({ ...widget, color: c })}
+              className={`h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 ${widget.color === c ? 'border-white scale-110' : 'border-transparent'}`}
+              style={{ backgroundColor: c }} />
+          ))}
+        </div>
+      </div>
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={widget.showSeconds}
+          onChange={e => onChange({ ...widget, showSeconds: e.target.checked })} className="rounded" />
+        <span className="text-sm text-white/80">Afficher les secondes</span>
+      </label>
+    </div>
+  )
+}
 
 function TimerPanel({ widget, onChange }: { widget: TimerWidget; onChange: (w: TimerWidget) => void }) {
   const [min, setMin] = useState(Math.floor(widget.duration / 60).toString())
   const [sec, setSec] = useState((widget.duration % 60).toString().padStart(2, '0'))
-
   const apply = () => {
     const total = (parseInt(min) || 0) * 60 + (parseInt(sec) || 0)
     onChange({ ...widget, duration: total })
   }
-
   return (
     <div className="space-y-3">
       <div>
@@ -350,112 +391,53 @@ function TimerPanel({ widget, onChange }: { widget: TimerWidget; onChange: (w: T
   )
 }
 
-// ── Clock editor panel ───────────────────────────────────────────────────────
-
-function ClockPanel({ widget, onChange }: { widget: ClockWidget; onChange: (w: ClockWidget) => void }) {
-  return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-xs text-white/50 mb-1">Couleur</p>
-        <div className="flex gap-1.5 flex-wrap">
-          {TEXT_COLORS.map(c => (
-            <button key={c} onClick={() => onChange({ ...widget, color: c })}
-              className={`h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 ${widget.color === c ? 'border-white scale-110' : 'border-transparent'}`}
-              style={{ backgroundColor: c }} />
-          ))}
-        </div>
-      </div>
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={widget.showSeconds}
-          onChange={e => onChange({ ...widget, showSeconds: e.target.checked })}
-          className="rounded" />
-        <span className="text-sm text-white/80">Afficher les secondes</span>
-      </label>
-    </div>
-  )
-}
-
-// ── Image editor panel ───────────────────────────────────────────────────────
-
-function ImagePanel({ widget, onChange }: { widget: ImageWidget; onChange: (w: ImageWidget) => void }) {
-  const fileRef = useRef<HTMLInputElement>(null)
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = ev => onChange({ ...widget, src: ev.target?.result as string })
-    reader.readAsDataURL(file)
-  }
-
-  return (
-    <div className="space-y-3">
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-      <button onClick={() => fileRef.current?.click()}
-        className="w-full rounded-lg border border-dashed border-white/30 py-3 text-sm text-white/70 hover:border-white/60 hover:text-white transition-colors">
-        Choisir une image
-      </button>
-      <div>
-        <p className="text-xs text-white/50 mb-1">Affichage</p>
-        <div className="flex gap-2">
-          {(['contain', 'cover'] as const).map(fit => (
-            <button key={fit} onClick={() => onChange({ ...widget, objectFit: fit })}
-              className={`flex-1 rounded-lg py-1.5 text-xs transition-colors capitalize ${widget.objectFit === fit ? 'bg-white/30 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}>
-              {fit === 'contain' ? 'Contenu' : 'Remplir'}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Main Whiteboard ──────────────────────────────────────────────────────────
+// ── Main Component ───────────────────────────────────────────────────────────
 
 interface Props {
-  initialWidgets: Widget[]
-  initialBackground: Background
+  initialPages: PageData[]
 }
 
-export default function WhiteboardCanvas({ initialWidgets, initialBackground }: Props) {
-  const [widgets, setWidgets] = useState<Widget[]>(initialWidgets)
-  const [background, setBackground] = useState<Background>(initialBackground)
+export default function WhiteboardCanvas({ initialPages }: Props) {
+  const [pages, setPages] = useState<PageData[]>(initialPages)
+  const [activePageId, setActivePageId] = useState<string>(initialPages[0]?.id ?? '')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
   const [showBgPanel, setShowBgPanel] = useState(false)
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [renamingPageId, setRenamingPageId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
   const canvasRef = useRef<HTMLDivElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const selectedWidget = widgets.find(w => w.id === selectedId) ?? null
+  const activePage = pages.find(p => p.id === activePageId) ?? pages[0]
 
   // Auto-save with debounce
-  const scheduleSave = useCallback((w: Widget[], bg: Background) => {
+  const scheduleSave = useCallback((pageId: string, widgets: Widget[], background: Background) => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
       setSaving(true)
-      await fetch('/api/whiteboard', {
+      await fetch(`/api/whiteboard-pages/${pageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ widgets: w, background: bg }),
+        body: JSON.stringify({ widgets, background }),
       })
       setSaving(false)
     }, 1500)
   }, [])
 
-  const updateWidgets = (next: Widget[]) => {
-    setWidgets(next)
-    scheduleSave(next, background)
+  const updateActivePage = (patch: Partial<PageData>) => {
+    if (!activePage) return
+    const next = pages.map(p => p.id === activePage.id ? { ...p, ...patch } : p)
+    setPages(next)
+    const updated = next.find(p => p.id === activePage.id)!
+    scheduleSave(activePage.id, updated.widgets, updated.background)
   }
 
-  const updateBackground = (bg: Background) => {
-    setBackground(bg)
-    scheduleSave(widgets, bg)
-  }
-
+  // Widgets
   const addWidget = (type: WidgetType) => {
-    const maxZ = widgets.reduce((m, w) => Math.max(m, w.zIndex), 0)
+    if (!activePage) return
+    const maxZ = activePage.widgets.reduce((m, w) => Math.max(m, w.zIndex), 0)
     let w: Widget
     if (type === 'text') {
       w = { id: uid(), type, x: 20, y: 30, w: 40, h: 20, zIndex: maxZ + 1, content: 'Votre texte ici', fontSize: 48, color: '#ffffff', bold: false, align: 'center', bg: 'transparent' }
@@ -466,48 +448,90 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
     } else {
       w = { id: uid(), type, x: 35, y: 35, w: 30, h: 25, zIndex: maxZ + 1, color: '#ffffff', duration: 300 }
     }
-    const next = [...widgets, w]
-    setWidgets(next)
+    updateActivePage({ widgets: [...activePage.widgets, w] })
     setSelectedId(w.id)
-    scheduleSave(next, background)
     setShowAddPanel(false)
   }
 
   const moveWidget = (id: string, x: number, y: number) => {
-    const next = widgets.map(w => w.id === id ? { ...w, x, y } : w)
-    updateWidgets(next)
+    if (!activePage) return
+    updateActivePage({ widgets: activePage.widgets.map(w => w.id === id ? { ...w, x, y } : w) })
   }
 
   const resizeWidget = (id: string, width: number, height: number) => {
-    const next = widgets.map(w => w.id === id ? { ...w, w: width, h: height } : w)
-    updateWidgets(next)
+    if (!activePage) return
+    updateActivePage({ widgets: activePage.widgets.map(w => w.id === id ? { ...w, w: width, h: height } : w) })
   }
 
   const deleteWidget = (id: string) => {
-    const next = widgets.filter(w => w.id !== id)
-    updateWidgets(next)
+    if (!activePage) return
+    updateActivePage({ widgets: activePage.widgets.filter(w => w.id !== id) })
     setSelectedId(null)
   }
 
   const updateWidget = (updated: Widget) => {
-    const next = widgets.map(w => w.id === updated.id ? updated : w)
-    updateWidgets(next)
+    if (!activePage) return
+    updateActivePage({ widgets: activePage.widgets.map(w => w.id === updated.id ? updated : w) })
   }
 
-  // Background image upload
+  // Pages
+  const addPage = async () => {
+    const res = await fetch('/api/whiteboard-pages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: `Page ${pages.length + 1}` }),
+    })
+    if (res.ok) {
+      const newPage = await res.json()
+      setPages(prev => [...prev, { ...newPage, widgets: [], background: { type: 'color', value: '#1e1b4b' } }])
+      setActivePageId(newPage.id)
+      setSelectedId(null)
+    }
+  }
+
+  const deletePage = async (pageId: string) => {
+    if (pages.length <= 1) return
+    const res = await fetch(`/api/whiteboard-pages/${pageId}`, { method: 'DELETE' })
+    if (res.ok) {
+      const remaining = pages.filter(p => p.id !== pageId)
+      setPages(remaining)
+      if (activePageId === pageId) {
+        setActivePageId(remaining[0].id)
+        setSelectedId(null)
+      }
+    }
+  }
+
+  const startRename = (page: PageData) => {
+    setRenamingPageId(page.id)
+    setRenameValue(page.name)
+  }
+
+  const commitRename = async (pageId: string) => {
+    const name = renameValue.trim() || 'Page'
+    setPages(prev => prev.map(p => p.id === pageId ? { ...p, name } : p))
+    setRenamingPageId(null)
+    await fetch(`/api/whiteboard-pages/${pageId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+  }
+
+  // Background
   const bgFileRef = useRef<HTMLInputElement>(null)
   const handleBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = ev => updateBackground({ type: 'image', value: ev.target?.result as string })
+    reader.onload = ev => updateActivePage({ background: { type: 'image', value: ev.target?.result as string } })
     reader.readAsDataURL(file)
   }
 
   // Fullscreen
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      canvasRef.current?.requestFullscreen()
+      canvasRef.current?.parentElement?.requestFullscreen()
       setFullscreen(true)
     } else {
       document.exitFullscreen()
@@ -521,14 +545,65 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
-  const bgStyle: React.CSSProperties = background.type === 'color'
-    ? { backgroundColor: background.value }
-    : { backgroundImage: `url(${background.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  const selectedWidget = activePage?.widgets.find(w => w.id === selectedId) ?? null
+  const bg = activePage?.background ?? { type: 'color', value: '#1e1b4b' }
+  const bgStyle: React.CSSProperties = bg.type === 'color'
+    ? { backgroundColor: bg.value }
+    : { backgroundImage: `url(${bg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+
+  if (!activePage) return null
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0 bg-slate-950">
+
+      {/* Pages tabs bar */}
+      <div
+        className="flex items-center gap-1 px-3 py-1.5 bg-slate-950 border-b border-white/10 overflow-x-auto flex-shrink-0"
+        onClick={e => e.stopPropagation()}
+      >
+        {pages.map(page => (
+          <div key={page.id} className="flex items-center flex-shrink-0">
+            {renamingPageId === page.id ? (
+              <input
+                autoFocus
+                value={renameValue}
+                onChange={e => setRenameValue(e.target.value)}
+                onBlur={() => commitRename(page.id)}
+                onKeyDown={e => { if (e.key === 'Enter') commitRename(page.id); if (e.key === 'Escape') setRenamingPageId(null) }}
+                className="rounded-md bg-white/20 px-2 py-1 text-xs text-white focus:outline-none w-24"
+              />
+            ) : (
+              <button
+                onClick={() => { setActivePageId(page.id); setSelectedId(null) }}
+                onDoubleClick={() => startRename(page)}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${page.id === activePageId ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/10'}`}
+              >
+                {page.name}
+              </button>
+            )}
+            {pages.length > 1 && (
+              <button
+                onClick={() => deletePage(page.id)}
+                className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white/30 hover:bg-red-500/30 hover:text-red-300 transition-colors"
+              >
+                <X className="h-2.5 w-2.5" />
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          onClick={addPage}
+          className="ml-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+        <div className="flex-1" />
+        <span className="text-xs text-white/20 mr-1">{saving ? 'Sauvegarde...' : 'Sauvegardé'}</span>
+      </div>
+
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/95 border-b border-white/10 flex-shrink-0 print:hidden" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center gap-2 px-4 py-2 bg-slate-900/95 border-b border-white/10 flex-shrink-0"
+        onClick={e => e.stopPropagation()}>
         {/* Add widget */}
         <div className="relative">
           <button onClick={() => { setShowAddPanel(v => !v); setShowBgPanel(false) }}
@@ -563,13 +638,13 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
               <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Couleur</p>
               <div className="flex flex-wrap gap-2">
                 {BG_PRESETS.map(c => (
-                  <button key={c} onClick={() => updateBackground({ type: 'color', value: c })}
-                    className={`h-7 w-7 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${background.type === 'color' && background.value === c ? 'border-white scale-110' : 'border-transparent'}`}
+                  <button key={c} onClick={() => updateActivePage({ background: { type: 'color', value: c } })}
+                    className={`h-7 w-7 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${bg.type === 'color' && bg.value === c ? 'border-white scale-110' : 'border-transparent'}`}
                     style={{ backgroundColor: c }} />
                 ))}
-                <input type="color" value={background.type === 'color' ? background.value : '#1e1b4b'}
-                  onChange={e => updateBackground({ type: 'color', value: e.target.value })}
-                  className="h-7 w-7 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50" title="Couleur personnalisée" />
+                <input type="color" value={bg.type === 'color' ? bg.value : '#1e1b4b'}
+                  onChange={e => updateActivePage({ background: { type: 'color', value: e.target.value } })}
+                  className="h-7 w-7 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50" />
               </div>
               <div className="border-t border-white/10 pt-2">
                 <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Image</p>
@@ -584,9 +659,6 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
         </div>
 
         <div className="flex-1" />
-
-        {/* Save status */}
-        <span className="text-xs text-white/30">{saving ? 'Sauvegarde...' : 'Sauvegardé'}</span>
 
         {/* Fullscreen */}
         <button onClick={toggleFullscreen}
@@ -605,7 +677,7 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
           style={bgStyle}
           onClick={() => { setSelectedId(null); setShowBgPanel(false); setShowAddPanel(false) }}
         >
-          {widgets.map(widget => (
+          {activePage.widgets.map(widget => (
             <WidgetShell
               key={widget.id}
               widget={widget}
@@ -620,14 +692,10 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
                 <div className="h-full w-full flex items-center justify-center rounded-xl overflow-hidden px-3 py-2"
                   style={{ backgroundColor: widget.bg }}>
                   <p style={{
-                    color: widget.color,
-                    fontSize: `${widget.fontSize}px`,
-                    fontWeight: widget.bold ? 700 : 400,
-                    textAlign: widget.align,
-                    lineHeight: 1.2,
-                    wordBreak: 'break-word',
-                    textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                    width: '100%',
+                    color: widget.color, fontSize: `${widget.fontSize}px`,
+                    fontWeight: widget.bold ? 700 : 400, textAlign: widget.align,
+                    lineHeight: 1.2, wordBreak: 'break-word',
+                    textShadow: '0 2px 8px rgba(0,0,0,0.4)', width: '100%',
                   }}>
                     {widget.content}
                   </p>
@@ -647,14 +715,13 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
               )}
               {widget.type === 'timer' && (
                 <div className="h-full w-full bg-black/20 backdrop-blur-sm rounded-xl">
-                  <TimerDisplay widget={widget} onUpdate={updateWidget} />
+                  <TimerDisplay widget={widget} />
                 </div>
               )}
             </WidgetShell>
           ))}
 
-          {/* Empty state */}
-          {widgets.length === 0 && (
+          {activePage.widgets.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <p className="text-white/20 text-lg font-medium select-none">
                 Cliquez sur "Ajouter" pour commencer
@@ -665,10 +732,11 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
 
         {/* Side edit panel */}
         {selectedWidget && (
-          <div className="w-64 flex-shrink-0 bg-slate-900/95 border-l border-white/10 overflow-y-auto print:hidden" onClick={e => e.stopPropagation()}>
+          <div className="w-64 flex-shrink-0 bg-slate-900/95 border-l border-white/10 overflow-y-auto"
+            onClick={e => e.stopPropagation()}>
             <div className="p-4 space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-white capitalize">
+                <p className="text-sm font-semibold text-white">
                   {selectedWidget.type === 'text' ? '✏️ Texte'
                     : selectedWidget.type === 'image' ? '🖼️ Image'
                     : selectedWidget.type === 'clock' ? '🕐 Horloge'
@@ -678,20 +746,10 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
                   <X className="h-4 w-4" />
                 </button>
               </div>
-
-              {selectedWidget.type === 'text' && (
-                <TextPanel widget={selectedWidget} onChange={updateWidget} />
-              )}
-              {selectedWidget.type === 'image' && (
-                <ImagePanel widget={selectedWidget} onChange={updateWidget} />
-              )}
-              {selectedWidget.type === 'clock' && (
-                <ClockPanel widget={selectedWidget} onChange={updateWidget} />
-              )}
-              {selectedWidget.type === 'timer' && (
-                <TimerPanel widget={selectedWidget} onChange={updateWidget} />
-              )}
-
+              {selectedWidget.type === 'text' && <TextPanel widget={selectedWidget} onChange={updateWidget} />}
+              {selectedWidget.type === 'image' && <ImagePanel widget={selectedWidget} onChange={updateWidget} />}
+              {selectedWidget.type === 'clock' && <ClockPanel widget={selectedWidget} onChange={updateWidget} />}
+              {selectedWidget.type === 'timer' && <TimerPanel widget={selectedWidget} onChange={updateWidget} />}
               <div className="border-t border-white/10 pt-3">
                 <button onClick={() => deleteWidget(selectedWidget.id)}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 py-2 text-sm text-red-300 transition-colors">

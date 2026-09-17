@@ -1,35 +1,29 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import WhiteboardCanvas from './WhiteboardCanvas'
+import WhiteboardCanvas, { type PageData } from './WhiteboardCanvas'
 
 export default function TableauBlancPage() {
-  const [data, setData] = useState<{ widgets: unknown[]; background: { type: string; value: string } } | null>(null)
+  const [pages, setPages] = useState<PageData[] | null>(null)
 
   useEffect(() => {
-    fetch('/api/whiteboard')
+    fetch('/api/whiteboard-pages')
       .then(r => r.json())
-      .then(wb => setData({
-        widgets: wb.widgets ?? [],
-        background: wb.background ?? { type: 'color', value: '#1e1b4b' },
-      }))
-      .catch(() => setData({ widgets: [], background: { type: 'color', value: '#1e1b4b' } }))
+      .then((data: PageData[]) => setPages(data.map(p => ({
+        ...p,
+        widgets: (p.widgets as unknown as PageData['widgets']) ?? [],
+        background: (p.background as unknown as PageData['background']) ?? { type: 'color', value: '#1e1b4b' },
+      }))))
+      .catch(() => setPages([]))
   }, [])
 
-  if (!data) {
+  if (pages === null) {
     return (
-      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 64px)', background: '#1e1b4b' }}>
+      <div className="flex flex-1 items-center justify-center" style={{ background: '#1e1b4b', height: '100%' }}>
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
       </div>
     )
   }
 
-  return (
-    <div className="flex flex-col -mx-6 -my-8 md:-mx-10 md:-my-10" style={{ height: 'calc(100vh - 0px)' }}>
-      <WhiteboardCanvas
-        initialWidgets={data.widgets as never}
-        initialBackground={data.background as never}
-      />
-    </div>
-  )
+  return <WhiteboardCanvas initialPages={pages} />
 }
