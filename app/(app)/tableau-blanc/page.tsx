@@ -13,6 +13,7 @@ export default function TableauBlancPage() {
         ...p,
         widgets: (p.widgets as unknown as PageData['widgets']) ?? [],
         background: (p.background as unknown as PageData['background']) ?? { type: 'color', value: '#1e1b4b' },
+        paths: (p as PageData & { paths?: PageData['paths'] }).paths ?? [],
       }))))
       .catch(() => setPages([]))
   }, [])

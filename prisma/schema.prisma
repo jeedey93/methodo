@@ -193,6 +193,7 @@ model WhiteboardPage {
   name       String   @default("Page 1")
   widgets    Json     @default("[]")
   background Json     @default("{\"type\":\"color\",\"value\":\"#1e1b4b\"}")
+  paths      Json     @default("[]")
   order      Int      @default(0)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")

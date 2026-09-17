@@ -9,7 +9,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await req.json()
-  const { widgets, background, name } = body
+  const { widgets, background, name, paths } = body
 
   const page = await prisma.whiteboardPage.findFirst({ where: { id, userId: user.id } })
   if (!page) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 })
@@ -20,6 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(widgets !== undefined ? { widgets } : {}),
       ...(background !== undefined ? { background } : {}),
       ...(name !== undefined ? { name } : {}),
+      ...(paths !== undefined ? { paths } : {}),
     },
   })
 
