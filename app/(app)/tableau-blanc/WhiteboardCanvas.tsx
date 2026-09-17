@@ -25,7 +25,7 @@ type Widget = TextWidget | ImageWidget | ClockWidget | TimerWidget | EmojiWidget
 interface DrawPath {
   id: string
   tool: 'pencil' | 'highlighter' | 'line' | 'arrow'
-  points: string   // SVG path d attribute
+  points: string
   color: string
   width: number
   opacity: number
@@ -43,22 +43,23 @@ export interface PageData {
 const BG_PRESETS = ['#1e1b4b','#0f172a','#14532d','#7f1d1d','#1e3a5f','#ffffff','#fafaf7','#f0fdf4','#fef3c7','#fdf2f8']
 
 const WALLPAPERS = [
-  { label: 'Galaxie',         url: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=200&q=70' },
-  { label: 'Aurore boréale',  url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=200&q=70' },
-  { label: 'Forêt',           url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=200&q=70' },
-  { label: 'Océan',           url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=200&q=70' },
-  { label: 'Montagne',        url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=200&q=70' },
-  { label: 'Coucher de soleil',url:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=200&q=70' },
-  { label: 'Tableau noir',    url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=200&q=70' },
-  { label: 'Bois',            url: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=200&q=70' },
-  { label: 'Nuages',          url: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=200&q=70' },
-  { label: 'Automne',         url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=70' },
-  { label: 'Abstrait bleu',   url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200&q=70' },
-  { label: 'Aquarelle',       url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=200&q=70' },
+  { label: 'Galaxie',          url: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=200&q=70' },
+  { label: 'Aurore boréale',   url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=200&q=70' },
+  { label: 'Forêt',            url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=200&q=70' },
+  { label: 'Océan',            url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=200&q=70' },
+  { label: 'Montagne',         url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=200&q=70' },
+  { label: 'Coucher de soleil',url: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=200&q=70' },
+  { label: 'Tableau noir',     url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=200&q=70' },
+  { label: 'Bois',             url: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=200&q=70' },
+  { label: 'Nuages',           url: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=200&q=70' },
+  { label: 'Automne',          url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=70' },
+  { label: 'Abstrait bleu',    url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200&q=70' },
+  { label: 'Aquarelle',        url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=200&q=70' },
 ]
 
 const TEXT_COLORS = ['#ffffff','#f1f5f9','#fde68a','#86efac','#93c5fd','#f9a8d4','#000000','#1e293b']
 const DRAW_COLORS = ['#ffffff','#fde68a','#86efac','#f87171','#93c5fd','#f9a8d4','#000000','#fb923c']
+const SHAPE_COLORS = ['#ffffff','#fde68a','#86efac','#f87171','#93c5fd','#f9a8d4','#fb923c','transparent']
 const FONT_SIZES = [18,24,32,48,64,80,96,128]
 
 const EMOJI_LIST = [
@@ -66,8 +67,6 @@ const EMOJI_LIST = [
   '🎯','🏆','🎉','🎨','🎵','📝','🔔','⏰','📌','💬','🤝','👀','💪','🧠','🌟','🚀',
   '🌈','☀️','🌙','⚡','🌊','🍎','🐱','🐶','🦋','🌸','🌿','🍀','🎸','🎭','🏫','✨',
 ]
-
-const SHAPE_COLORS = ['#ffffff','#fde68a','#86efac','#f87171','#93c5fd','#f9a8d4','#fb923c','transparent']
 
 function uid() { return Math.random().toString(36).slice(2, 10) }
 
@@ -80,8 +79,7 @@ function ClockDisplay({ widget }: { widget: ClockWidget }) {
   const m = time.getMinutes().toString().padStart(2,'0')
   const s = time.getSeconds().toString().padStart(2,'0')
   return (
-    <div className="flex items-center justify-center h-full select-none"
-      style={{ color: widget.color, fontFamily: 'monospace' }}>
+    <div className="flex items-center justify-center h-full select-none" style={{ color: widget.color, fontFamily: 'monospace' }}>
       <span className="font-bold tabular-nums drop-shadow-lg"
         style={{ fontSize: widget.showSeconds ? 'min(18cqw, 45cqh)' : 'min(24cqw, 50cqh)' }}>
         {h}:{m}{widget.showSeconds ? `:${s}` : ''}
@@ -108,7 +106,7 @@ function TimerDisplay({ widget }: { widget: TimerWidget }) {
   const pct = widget.duration > 0 ? remaining / widget.duration : 0
   const color = remaining === 0 ? '#ef4444' : pct < 0.2 ? '#f97316' : widget.color
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-[8cqh] select-none" style={{ color, containerType: 'size' as never }}>
+    <div className="flex flex-col items-center justify-center h-full gap-[8cqh] select-none" style={{ color }}>
       <span className="font-bold tabular-nums drop-shadow-lg" style={{ fontFamily: 'monospace', fontSize: 'min(24cqw, 50cqh)' }}>{mm}:{ss}</span>
       <div className="flex gap-2" style={{ fontSize: 'min(4cqw, 10cqh)' }}>
         <button onMouseDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); setRunning(r => !r) }}
@@ -302,13 +300,11 @@ function ShapePanel({ widget, onChange }: { widget: ShapeWidget; onChange: (w:Sh
       </div>
       <div>
         <p className="text-xs text-white/50 mb-1">Épaisseur bordure: {widget.strokeWidth}px</p>
-        <input type="range" min={0} max={12} value={widget.strokeWidth} onChange={e=>onChange({...widget,strokeWidth:Number(e.target.value)})}
-          className="w-full accent-white"/>
+        <input type="range" min={0} max={12} value={widget.strokeWidth} onChange={e=>onChange({...widget,strokeWidth:Number(e.target.value)})} className="w-full accent-white"/>
       </div>
       <div>
         <p className="text-xs text-white/50 mb-1">Opacité: {Math.round(widget.opacity*100)}%</p>
-        <input type="range" min={10} max={100} value={Math.round(widget.opacity*100)} onChange={e=>onChange({...widget,opacity:Number(e.target.value)/100})}
-          className="w-full accent-white"/>
+        <input type="range" min={10} max={100} value={Math.round(widget.opacity*100)} onChange={e=>onChange({...widget,opacity:Number(e.target.value)/100})} className="w-full accent-white"/>
       </div>
     </div>
   )
@@ -410,6 +406,19 @@ function ShapeRenderer({ widget }: { widget: ShapeWidget }) {
   )
 }
 
+// ── Toolbar button helper ─────────────────────────────────────────────────────
+
+function ToolBtn({ active, onClick, children, label, danger }: { active?: boolean; onClick: ()=>void; children: React.ReactNode; label: string; danger?: boolean }) {
+  return (
+    <button onClick={onClick}
+      className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 min-w-[60px] transition-all select-none
+        ${active ? (danger ? 'bg-red-500/30 text-red-300 ring-1 ring-red-400/50' : 'bg-white/25 text-white ring-1 ring-white/40') : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'}`}>
+      {children}
+      <span className="text-[10px] font-medium leading-none">{label}</span>
+    </button>
+  )
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 interface Props { initialPages: PageData[] }
@@ -420,7 +429,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   const [selectedId, setSelectedId] = useState<string|null>(null)
   const [fullscreen, setFullscreen] = useState(false)
   const [showBgPanel, setShowBgPanel] = useState(false)
-  const [showAddPanel, setShowAddPanel] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [saving, setSaving] = useState(false)
   const [renamingPageId, setRenamingPageId] = useState<string|null>(null)
@@ -429,16 +437,22 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
   const [drawTool, setDrawTool] = useState<DrawTool>('select')
   const [drawColor, setDrawColor] = useState('#ffffff')
   const [drawWidth, setDrawWidth] = useState(3)
-  const [showDrawPanel, setShowDrawPanel] = useState(false)
+  const [showDrawColorPanel, setShowDrawColorPanel] = useState(false)
   const [isDrawing, setIsDrawing] = useState(false)
-  const currentPath = useRef<{id:string;points:{x:number;y:number}[];startX?:number;startY?:number}|null>(null)
+  const [livePathD, setLivePathD] = useState('')
+  const [hoveredPathId, setHoveredPathId] = useState<string|null>(null)
+  const [selectedPathId, setSelectedPathId] = useState<string|null>(null)
+  const currentPath = useRef<{id:string;points:{x:number;y:number}[]}|null>(null)
 
   const canvasRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout>|null>(null)
+  const bgFileRef = useRef<HTMLInputElement>(null)
 
   const activePage = pages.find(p => p.id === activePageId) ?? pages[0]
   const drawMode = drawTool !== 'select'
+
+  const closeAllPanels = () => { setShowBgPanel(false); setShowEmojiPicker(false); setShowDrawColorPanel(false) }
 
   const scheduleSave = useCallback((pageId: string, widgets: Widget[], background: Background, paths: DrawPath[]) => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
@@ -475,7 +489,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     else w = { id:uid(),type:'shape',x:20,y:20,w:30,h:30,zIndex:maxZ+1,shape:'rect',fill:'#93c5fd',stroke:'#ffffff',strokeWidth:2,opacity:1 }
     updateActivePage({ widgets: [...activePage.widgets, w] })
     setSelectedId(w.id)
-    setShowAddPanel(false); setShowEmojiPicker(false)
+    closeAllPanels()
   }
 
   const moveWidget = (id:string,x:number,y:number) => { if (!activePage) return; updateActivePage({widgets:activePage.widgets.map(w=>w.id===id?{...w,x,y}:w)}) }
@@ -485,7 +499,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
   // ── Drawing ────────────────────────────────────────────────────────────────
 
-  const getPathBBox = (d: string): { minX: number; minY: number; maxX: number; maxY: number } => {
+  const getPathBBox = (d: string) => {
     const coords = d.match(/-?[\d.]+,-?[\d.]+/g) ?? []
     if (coords.length === 0) return { minX: 0, minY: 0, maxX: 0, maxY: 0 }
     const xs = coords.map(c => Number(c.split(',')[0]))
@@ -511,12 +525,11 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     setSelectedPathId(null)
     const { x, y } = getCanvasXY(e)
     setIsDrawing(true)
-    currentPath.current = { id: uid(), points: [{x,y}], startX: x, startY: y }
+    currentPath.current = { id: uid(), points: [{x,y}] }
     setSelectedId(null)
   }
 
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    // Eraser hover highlight + drag-erase
     if (drawTool === 'eraser' && activePage) {
       const { x, y } = getCanvasXY(e)
       const threshold = 4
@@ -528,7 +541,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
         })
       })
       setHoveredPathId(hit?.id ?? null)
-      // Erase while mouse button held
       if (e.buttons === 1 && hit) {
         updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== hit.id) })
         setHoveredPathId(null)
@@ -538,19 +550,12 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     const { x, y } = getCanvasXY(e)
     if (drawTool === 'pencil' || drawTool === 'highlighter') {
       currentPath.current.points.push({x,y})
-      // Force re-render by updating a temp path in state (we do it on mouseup instead for perf)
-    }
-    // For line/arrow, just update last point
-    if (drawTool === 'line' || drawTool === 'arrow') {
+    } else {
       currentPath.current.points = [currentPath.current.points[0], {x,y}]
     }
-    // Trigger SVG update via forceUpdate trick
     svgRef.current?.dispatchEvent(new Event('pathupdate'))
   }
 
-  const [livePathD, setLivePathD] = useState('')
-  const [hoveredPathId, setHoveredPathId] = useState<string|null>(null)
-  const [selectedPathId, setSelectedPathId] = useState<string|null>(null)
   useEffect(() => {
     const el = svgRef.current
     if (!el) return
@@ -586,7 +591,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     } else {
       const [a,b] = [pts[0], pts[pts.length-1]]
       if (drawTool === 'arrow') {
-        // Simple arrowhead: line + two short lines at end
         const dx = b.x-a.x, dy = b.y-a.y, len = Math.sqrt(dx*dx+dy*dy)||1
         const ux = dx/len, uy = dy/len, headLen = Math.min(4, len*0.3)
         const perp1x = -uy*headLen*0.5, perp1y = ux*headLen*0.5
@@ -609,21 +613,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     setIsDrawing(false)
     currentPath.current = null
     setLivePathD('')
-  }
-
-  const handleEraserClick = (e: React.MouseEvent) => {
-    if (drawTool !== 'eraser' || !activePage) return
-    const { x, y } = getCanvasXY(e)
-    const threshold = 3
-    const remaining = (activePage.paths ?? []).filter(path => {
-      // Check if click is near any point in the path
-      const dMatches = path.points.match(/[\d.]+,[\d.]+/g) ?? []
-      return !dMatches.some(pt => {
-        const [px,py] = pt.split(',').map(Number)
-        return Math.abs(px-x) < threshold && Math.abs(py-y) < threshold
-      })
-    })
-    if (remaining.length !== (activePage.paths ?? []).length) updateActivePage({ paths: remaining })
   }
 
   // ── Pages ──────────────────────────────────────────────────────────────────
@@ -655,18 +644,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     await fetch(`/api/whiteboard-pages/${pageId}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name}) })
   }
 
-  // ── Background ─────────────────────────────────────────────────────────────
-
-  const bgFileRef = useRef<HTMLInputElement>(null)
-  const handleBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return
-    const reader = new FileReader()
-    reader.onload = ev => updateActivePage({background:{type:'image',value:ev.target?.result as string}})
-    reader.readAsDataURL(file)
-  }
-
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) { canvasRef.current?.parentElement?.requestFullscreen(); setFullscreen(true) }
+    if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); setFullscreen(true) }
     else { document.exitFullscreen(); setFullscreen(false) }
   }
   useEffect(() => {
@@ -675,6 +654,13 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
     return () => document.removeEventListener('fullscreenchange', h)
   }, [])
 
+  const handleBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => updateActivePage({background:{type:'image',value:ev.target?.result as string}})
+    reader.readAsDataURL(file)
+  }
+
   const selectedWidget = activePage?.widgets.find(w => w.id === selectedId) ?? null
   const bg = activePage?.background ?? { type:'color', value:'#1e1b4b' }
   const bgStyle: React.CSSProperties = bg.type === 'color' ? { backgroundColor: bg.value }
@@ -682,173 +668,23 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
   if (!activePage) return null
 
+  const DRAW_TOOLS: { tool: DrawTool; icon: React.FC<{className?:string}>; label: string }[] = [
+    { tool:'select',      icon: MousePointer, label:'Sélection' },
+    { tool:'pencil',      icon: Pencil,       label:'Crayon'    },
+    { tool:'highlighter', icon: Highlighter,  label:'Surligneur'},
+    { tool:'line',        icon: Minus,        label:'Ligne'     },
+    { tool:'arrow',       icon: ArrowRight,   label:'Flèche'    },
+    { tool:'eraser',      icon: Eraser,       label:'Effacer'   },
+  ]
+
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-slate-950">
 
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-slate-900/95 border-b border-white/10 flex-shrink-0"
-        onClick={e=>e.stopPropagation()}>
-
-        {/* Add widget */}
-        <div className="relative">
-          <button onClick={()=>{setShowAddPanel(v=>!v);setShowBgPanel(false);setShowDrawPanel(false)}}
-            className="flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors">
-            <Plus className="h-4 w-4"/>Ajouter
-          </button>
-          {showAddPanel && (
-            <div className="absolute top-full left-0 mt-1.5 z-50 w-48 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-1.5 space-y-0.5">
-              {[
-                {type:'text' as WidgetType,icon:Type,label:'Texte'},
-                {type:'image' as WidgetType,icon:ImageIcon,label:'Image'},
-                {type:'clock' as WidgetType,icon:Clock,label:'Horloge'},
-                {type:'timer' as WidgetType,icon:Timer,label:'Minuterie'},
-              ].map(item=>(
-                <button key={item.type} onClick={()=>addWidget(item.type)}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                  <item.icon className="h-4 w-4 text-white/60"/>{item.label}
-                </button>
-              ))}
-              {/* Emoji */}
-              <div className="relative">
-                <button onClick={()=>setShowEmojiPicker(v=>!v)}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                  <Smile className="h-4 w-4 text-white/60"/>Emoji
-                </button>
-                {showEmojiPicker && (
-                  <div className="absolute left-full top-0 ml-1 z-50 w-64 rounded-xl bg-slate-700 border border-white/10 shadow-2xl p-2">
-                    <div className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto">
-                      {EMOJI_LIST.map(e=>(
-                        <button key={e} onClick={()=>addWidget('emoji',e)}
-                          className="text-xl rounded-lg p-0.5 hover:bg-white/20 transition-all hover:scale-110">{e}</button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              {/* Forme */}
-              <button onClick={()=>addWidget('shape')}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors">
-                <Square className="h-4 w-4 text-white/60"/>Forme
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Draw tools */}
-        <div className="relative">
-          <button onClick={()=>{setShowDrawPanel(v=>!v);setShowAddPanel(false);setShowBgPanel(false)}}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors ${drawMode?'bg-blue-600 hover:bg-blue-500':'bg-white/10 hover:bg-white/20'}`}>
-            <Pencil className="h-4 w-4"/>Dessin
-          </button>
-          {showDrawPanel && (
-            <div className="absolute top-full left-0 mt-1.5 z-50 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3">
-              {/* Tools */}
-              <div className="grid grid-cols-3 gap-1.5">
-                {([
-                  {tool:'select',icon:MousePointer,label:'Sélection'},
-                  {tool:'pencil',icon:Pencil,label:'Crayon'},
-                  {tool:'highlighter',icon:Highlighter,label:'Surligneur'},
-                  {tool:'line',icon:Minus,label:'Ligne'},
-                  {tool:'arrow',icon:ArrowRight,label:'Flèche'},
-                  {tool:'eraser',icon:Eraser,label:'Effacer'},
-                ] as {tool:DrawTool;icon:React.FC<{className?:string}>;label:string}[]).map(t=>(
-                  <button key={t.tool} onClick={()=>setDrawTool(t.tool)}
-                    className={`flex flex-col items-center gap-1 rounded-lg py-2 text-xs transition-colors ${drawTool===t.tool?'bg-blue-600 text-white':'bg-white/10 text-white/70 hover:bg-white/20'}`}>
-                    <t.icon className="h-4 w-4"/>{t.label}
-                  </button>
-                ))}
-              </div>
-              {/* Color */}
-              {drawTool !== 'select' && drawTool !== 'eraser' && (
-                <>
-                  <div>
-                    <p className="text-xs text-white/50 mb-1.5">Couleur</p>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {DRAW_COLORS.map(c=>(
-                        <button key={c} onClick={()=>setDrawColor(c)}
-                          className={`h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 ${drawColor===c?'border-white scale-110':'border-transparent'}`}
-                          style={{backgroundColor:c}}/>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-white/50 mb-1">Épaisseur: {drawWidth}px</p>
-                    <input type="range" min={1} max={20} value={drawWidth} onChange={e=>setDrawWidth(Number(e.target.value))} className="w-full accent-white"/>
-                  </div>
-                </>
-              )}
-              {drawTool !== 'select' && activePage.paths.length > 0 && (
-                <button onClick={()=>updateActivePage({paths:[]})}
-                  className="w-full rounded-lg bg-red-500/20 hover:bg-red-500/30 py-1.5 text-xs text-red-300 transition-colors">
-                  Effacer tout
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Background */}
-        <div className="relative">
-          <button onClick={()=>{setShowBgPanel(v=>!v);setShowAddPanel(false);setShowDrawPanel(false)}}
-            className="flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors">
-            <Palette className="h-4 w-4"/>Fond
-          </button>
-          {showBgPanel && (
-            <div className="absolute top-full left-0 mt-1.5 z-50 w-72 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3 max-h-[70vh] overflow-y-auto">
-              <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Fonds d'écran</p>
-              <div className="grid grid-cols-3 gap-1.5">
-                {WALLPAPERS.map(w=>(
-                  <button key={w.url} onClick={()=>updateActivePage({background:{type:'image',value:w.url}})}
-                    className={`relative rounded-lg overflow-hidden transition-all hover:scale-105 ${bg.type==='image'&&bg.value===w.url?'ring-2 ring-white':'ring-1 ring-white/10 hover:ring-white/40'}`} title={w.label}>
-                    <div className="w-full" style={{paddingBottom:'56%'}}>
-                      <img src={w.thumb} alt={w.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
-                    </div>
-                    <div className="absolute bottom-0 inset-x-0 bg-black/50 px-1 py-0.5">
-                      <span className="text-white/80 text-[9px] truncate block">{w.label}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className="border-t border-white/10 pt-2">
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Couleur unie</p>
-                <div className="flex flex-wrap gap-2">
-                  {BG_PRESETS.map(c=>(
-                    <button key={c} onClick={()=>updateActivePage({background:{type:'color',value:c}})}
-                      className={`h-7 w-7 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${bg.type==='color'&&bg.value===c?'border-white scale-110':'border-transparent'}`}
-                      style={{backgroundColor:c}}/>
-                  ))}
-                  <input type="color" value={bg.type==='color'?bg.value:'#1e1b4b'}
-                    onChange={e=>updateActivePage({background:{type:'color',value:e.target.value}})}
-                    className="h-7 w-7 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50"/>
-                </div>
-              </div>
-              <div className="border-t border-white/10 pt-2">
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Image personnalisée</p>
-                <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgFile}/>
-                <button onClick={()=>bgFileRef.current?.click()}
-                  className="w-full rounded-lg border border-dashed border-white/30 py-2 text-xs text-white/70 hover:border-white/60 hover:text-white transition-colors">
-                  Choisir depuis mon ordinateur
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1"/>
-        <span className="text-xs text-white/30">{saving?'Sauvegarde...':'Sauvegardé'}</span>
-
-        <button onClick={toggleFullscreen}
-          className="flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-sm font-medium text-white transition-colors">
-          {fullscreen?<Minimize2 className="h-4 w-4"/>:<Maximize2 className="h-4 w-4"/>}
-          {fullscreen?'Quitter':'Plein écran'}
-        </button>
-      </div>
-
-      {/* Canvas + panels */}
+      {/* Main area: pages column + canvas + side edit panel */}
       <div className="flex flex-1 min-h-0">
 
-        {/* Pages panel */}
-        <div className="w-36 flex-shrink-0 bg-slate-950 border-r border-white/10 flex flex-col overflow-y-auto"
+        {/* Pages column */}
+        <div className="w-32 flex-shrink-0 bg-slate-950 border-r border-white/10 flex flex-col overflow-y-auto"
           onClick={e=>e.stopPropagation()}>
           <div className="flex-1 p-2 space-y-2">
             {pages.map((page,idx)=>{
@@ -872,7 +708,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
                         </div>
                       ))}
                     </div>
-                    <div className={`px-2 py-1 text-left ${isActive?'bg-white/20':'bg-black/40'}`}>
+                    <div className={`px-1.5 py-1 text-left ${isActive?'bg-white/20':'bg-black/40'}`}>
                       {renamingPageId===page.id?(
                         <input autoFocus value={renameValue} onChange={e=>setRenameValue(e.target.value)}
                           onBlur={()=>commitRename(page.id)}
@@ -897,8 +733,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
           </div>
           <div className="p-2 border-t border-white/10">
             <button onClick={addPage}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/20 py-2 text-xs text-white/40 hover:border-white/40 hover:text-white/80 transition-colors">
-              <Plus className="h-3.5 w-3.5"/>Nouvelle page
+              className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-white/20 py-2 text-xs text-white/40 hover:border-white/40 hover:text-white/80 transition-colors">
+              <Plus className="h-3.5 w-3.5"/>Page
             </button>
           </div>
         </div>
@@ -906,10 +742,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
         {/* Canvas */}
         <div ref={canvasRef} className="relative flex-1 overflow-hidden"
           style={{...bgStyle, cursor: drawTool==='eraser'?'cell':drawMode?'crosshair':'default'}}
-          onClick={e=>{
-            setSelectedId(null); setSelectedPathId(null)
-            setShowBgPanel(false); setShowAddPanel(false); setShowDrawPanel(false)
-          }}
+          onClick={()=>{ setSelectedId(null); setSelectedPathId(null); closeAllPanels() }}
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
           onMouseUp={handleCanvasMouseUp}
@@ -925,7 +758,6 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
               const bbox = isSelected ? getPathBBox(path.points) : null
               return (
                 <g key={path.id}>
-                  {/* Invisible thick hit area */}
                   {drawTool === 'select' && (
                     <path d={path.points} stroke="transparent" strokeWidth={3} fill="none" strokeLinecap="round"
                       style={{ cursor: 'pointer', pointerEvents: 'stroke' }}
@@ -933,24 +765,20 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
                       onMouseEnter={() => setHoveredPathId(path.id)}
                       onMouseLeave={() => setHoveredPathId(null)}/>
                   )}
-                  {/* Visible path */}
                   <path d={path.points}
-                    stroke={isEraseHover ? '#ef4444' : isSelected ? '#60a5fa' : isHovered && drawTool === 'select' ? '#93c5fd' : path.color}
-                    strokeWidth={isEraseHover ? path.width * 0.22 : isSelected ? path.width * 0.22 : path.width * 0.15}
+                    stroke={isEraseHover ? '#ef4444' : isSelected ? '#60a5fa' : isHovered && drawTool==='select' ? '#93c5fd' : path.color}
+                    strokeWidth={isEraseHover||isSelected ? path.width*0.22 : path.width*0.15}
                     fill="none" strokeLinecap="round" strokeLinejoin="round"
                     opacity={isEraseHover ? 0.6 : path.opacity}
                     style={{ pointerEvents: 'none' }}/>
-                  {/* Selection bounding box */}
                   {isSelected && bbox && (
-                    <rect x={bbox.minX - 1} y={bbox.minY - 1}
-                      width={bbox.maxX - bbox.minX + 2} height={bbox.maxY - bbox.minY + 2}
+                    <rect x={bbox.minX-1} y={bbox.minY-1} width={bbox.maxX-bbox.minX+2} height={bbox.maxY-bbox.minY+2}
                       fill="none" stroke="#60a5fa" strokeWidth={0.3} strokeDasharray="1,0.5"
                       style={{ pointerEvents: 'none' }}/>
                   )}
                 </g>
               )
             })}
-            {/* Live preview */}
             {isDrawing && livePathD && (
               <path d={livePathD} stroke={drawColor} strokeWidth={(drawTool==='highlighter'?drawWidth*4:drawWidth)*0.15}
                 fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={drawTool==='highlighter'?0.4:1}
@@ -965,15 +793,11 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
             const bbox = getPathBBox(path.points)
             return (
               <button
-                style={{ position: 'absolute', left: `${bbox.maxX}%`, top: `${bbox.minY}%`, transform: 'translate(-50%, -50%)', zIndex: 50 }}
-                onMouseDown={e => e.stopPropagation()}
-                onClick={e => {
-                  e.stopPropagation()
-                  updateActivePage({ paths: (activePage.paths ?? []).filter(p => p.id !== selectedPathId) })
-                  setSelectedPathId(null)
-                }}
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition-colors">
-                <X className="h-3 w-3"/>
+                style={{ position:'absolute', left:`${bbox.maxX}%`, top:`${bbox.minY}%`, transform:'translate(-50%,-50%)', zIndex:50 }}
+                onMouseDown={e=>e.stopPropagation()}
+                onClick={e=>{ e.stopPropagation(); updateActivePage({paths:(activePage.paths??[]).filter(p=>p.id!==selectedPathId)}); setSelectedPathId(null) }}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition-colors">
+                <X className="h-3.5 w-3.5"/>
               </button>
             )
           })()}
@@ -981,7 +805,7 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
           {/* Widgets */}
           {activePage.widgets.map(widget=>(
             <WidgetShell key={widget.id} widget={widget} selected={selectedId===widget.id} drawMode={drawMode}
-              onSelect={()=>{setSelectedId(widget.id);setShowBgPanel(false);setShowAddPanel(false);setShowDrawPanel(false)}}
+              onSelect={()=>{setSelectedId(widget.id);closeAllPanels()}}
               onMove={(x,y)=>moveWidget(widget.id,x,y)}
               onResize={(w,h)=>resizeWidget(widget.id,w,h)}
               onDelete={()=>deleteWidget(widget.id)}
@@ -1019,12 +843,12 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
 
           {activePage.widgets.length===0&&!drawMode&&(activePage.paths??[]).length===0&&(
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <p className="text-white/20 text-lg font-medium select-none">Cliquez sur "Ajouter" pour commencer</p>
+              <p className="text-white/20 text-lg font-medium select-none">Utilisez la barre en bas pour commencer</p>
             </div>
           )}
         </div>
 
-        {/* Side edit panel */}
+        {/* Side edit panel for selected widget */}
         {selectedWidget && !drawMode && (
           <div className="w-64 flex-shrink-0 bg-slate-900/95 border-l border-white/10 overflow-y-auto"
             onClick={e=>e.stopPropagation()}>
@@ -1050,6 +874,145 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ── Bottom toolbar ─────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 bg-slate-900/98 border-t border-white/10 px-3 py-2"
+        onClick={e=>e.stopPropagation()}>
+        <div className="flex items-end gap-2 overflow-x-auto">
+
+          {/* Separator helper */}
+          {/* Widgets group */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <ToolBtn onClick={()=>addWidget('text')} label="Texte"><Type className="h-5 w-5"/></ToolBtn>
+            <ToolBtn onClick={()=>addWidget('image')} label="Image"><ImageIcon className="h-5 w-5"/></ToolBtn>
+            <ToolBtn onClick={()=>addWidget('clock')} label="Horloge"><Clock className="h-5 w-5"/></ToolBtn>
+            <ToolBtn onClick={()=>addWidget('timer')} label="Minuterie"><Timer className="h-5 w-5"/></ToolBtn>
+            <ToolBtn onClick={()=>addWidget('shape')} label="Forme"><Square className="h-5 w-5"/></ToolBtn>
+            {/* Emoji button + upward panel */}
+            <div className="relative">
+              <ToolBtn active={showEmojiPicker} onClick={()=>{setShowEmojiPicker(v=>!v);setShowBgPanel(false);setShowDrawColorPanel(false)}} label="Emoji">
+                <Smile className="h-5 w-5"/>
+              </ToolBtn>
+              {showEmojiPicker && (
+                <div className="absolute bottom-full left-0 mb-2 z-50 w-72 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3">
+                  <div className="grid grid-cols-8 gap-1 max-h-52 overflow-y-auto">
+                    {EMOJI_LIST.map(e=>(
+                      <button key={e} onClick={()=>addWidget('emoji',e)}
+                        className="text-2xl rounded-lg p-1 hover:bg-white/20 transition-all hover:scale-110">{e}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-12 bg-white/10 flex-shrink-0"/>
+
+          {/* Draw tools */}
+          {DRAW_TOOLS.map(t=>(
+            <ToolBtn key={t.tool} active={drawTool===t.tool} onClick={()=>setDrawTool(t.tool)} label={t.label}>
+              <t.icon className="h-5 w-5"/>
+            </ToolBtn>
+          ))}
+
+          {/* Draw color + width (only when a draw tool active) */}
+          {drawMode && drawTool !== 'eraser' && (
+            <div className="relative flex-shrink-0">
+              <button onClick={()=>{setShowDrawColorPanel(v=>!v);setShowBgPanel(false);setShowEmojiPicker(false)}}
+                className="flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 min-w-[60px] bg-white/10 hover:bg-white/20 transition-all"
+                title="Couleur et épaisseur">
+                <div className="h-5 w-5 rounded-full border-2 border-white/40" style={{backgroundColor:drawColor}}/>
+                <span className="text-[10px] font-medium text-white/70 leading-none">Couleur</span>
+              </button>
+              {showDrawColorPanel && (
+                <div className="absolute bottom-full left-0 mb-2 z-50 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3">
+                  <div>
+                    <p className="text-xs text-white/50 mb-2">Couleur</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {DRAW_COLORS.map(c=>(
+                        <button key={c} onClick={()=>setDrawColor(c)}
+                          className={`h-8 w-8 rounded-full border-2 transition-transform hover:scale-110 ${drawColor===c?'border-white scale-110':'border-transparent'}`}
+                          style={{backgroundColor:c}}/>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/50 mb-1">Épaisseur : {drawWidth}px</p>
+                    <input type="range" min={1} max={20} value={drawWidth} onChange={e=>setDrawWidth(Number(e.target.value))} className="w-full accent-white"/>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Erase all */}
+          {activePage.paths.length > 0 && (
+            <ToolBtn danger onClick={()=>updateActivePage({paths:[]})} label="Tt effacer">
+              <Trash2 className="h-5 w-5"/>
+            </ToolBtn>
+          )}
+
+          {/* Divider */}
+          <div className="w-px h-12 bg-white/10 flex-shrink-0"/>
+
+          {/* Background */}
+          <div className="relative flex-shrink-0">
+            <ToolBtn active={showBgPanel} onClick={()=>{setShowBgPanel(v=>!v);setShowEmojiPicker(false);setShowDrawColorPanel(false)}} label="Fond">
+              <Palette className="h-5 w-5"/>
+            </ToolBtn>
+            {showBgPanel && (
+              <div className="absolute bottom-full left-0 mb-2 z-50 w-80 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Fonds d'écran</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {WALLPAPERS.map(w=>(
+                    <button key={w.url} onClick={()=>updateActivePage({background:{type:'image',value:w.url}})}
+                      className={`relative rounded-lg overflow-hidden transition-all hover:scale-105 ${bg.type==='image'&&bg.value===w.url?'ring-2 ring-white':'ring-1 ring-white/10 hover:ring-white/40'}`} title={w.label}>
+                      <div className="w-full" style={{paddingBottom:'56%'}}>
+                        <img src={w.thumb} alt={w.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy"/>
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 bg-black/50 px-1 py-0.5">
+                        <span className="text-white/80 text-[9px] truncate block">{w.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="border-t border-white/10 pt-2">
+                  <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Couleur unie</p>
+                  <div className="flex flex-wrap gap-2">
+                    {BG_PRESETS.map(c=>(
+                      <button key={c} onClick={()=>updateActivePage({background:{type:'color',value:c}})}
+                        className={`h-8 w-8 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${bg.type==='color'&&bg.value===c?'border-white scale-110':'border-transparent'}`}
+                        style={{backgroundColor:c}}/>
+                    ))}
+                    <input type="color" value={bg.type==='color'?bg.value:'#1e1b4b'}
+                      onChange={e=>updateActivePage({background:{type:'color',value:e.target.value}})}
+                      className="h-8 w-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50"/>
+                  </div>
+                </div>
+                <div className="border-t border-white/10 pt-2">
+                  <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgFile}/>
+                  <button onClick={()=>bgFileRef.current?.click()}
+                    className="w-full rounded-lg border border-dashed border-white/30 py-2 text-sm text-white/70 hover:border-white/60 hover:text-white transition-colors">
+                    Image personnalisée…
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-12 bg-white/10 flex-shrink-0"/>
+
+          {/* Fullscreen + save status */}
+          <ToolBtn onClick={toggleFullscreen} label={fullscreen?'Quitter':'Plein écran'}>
+            {fullscreen?<Minimize2 className="h-5 w-5"/>:<Maximize2 className="h-5 w-5"/>}
+          </ToolBtn>
+
+          <div className="flex-1 min-w-4"/>
+          <span className="text-xs text-white/25 self-center pb-1 flex-shrink-0">{saving?'Sauvegarde…':'✓'}</span>
+        </div>
       </div>
     </div>
   )
