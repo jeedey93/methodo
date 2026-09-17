@@ -895,7 +895,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
                 <Smile className="h-5 w-5"/>
               </ToolBtn>
               {showEmojiPicker && (
-                <div className="absolute bottom-full left-0 mb-2 z-50 w-72 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3">
+                <div className="absolute bottom-full left-0 mb-2 z-50 w-72 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3"
+                  onClick={e=>e.stopPropagation()}>
                   <div className="grid grid-cols-8 gap-1 max-h-52 overflow-y-auto">
                     {EMOJI_LIST.map(e=>(
                       <button key={e} onClick={()=>addWidget('emoji',e)}
@@ -927,7 +928,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
                 <span className="text-[10px] font-medium text-white/70 leading-none">Couleur</span>
               </button>
               {showDrawColorPanel && (
-                <div className="absolute bottom-full left-0 mb-2 z-50 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3">
+                <div className="absolute bottom-full left-0 mb-2 z-50 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3"
+                  onClick={e=>e.stopPropagation()}>
                   <div>
                     <p className="text-xs text-white/50 mb-2">Couleur</p>
                     <div className="flex gap-2 flex-wrap">
@@ -963,7 +965,8 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
               <Palette className="h-5 w-5"/>
             </ToolBtn>
             {showBgPanel && (
-              <div className="absolute bottom-full left-0 mb-2 z-50 w-80 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+              <div className="absolute bottom-full left-0 mb-2 z-50 w-80 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3 max-h-[70vh] overflow-y-auto"
+                onClick={e=>e.stopPropagation()}>
                 <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Fonds d'écran</p>
                 <div className="grid grid-cols-3 gap-1.5">
                   {WALLPAPERS.map(w=>(
