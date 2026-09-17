@@ -70,6 +70,21 @@ const BG_PRESETS = [
   '#ffffff', '#fafaf7', '#f0fdf4', '#fef3c7', '#fdf2f8',
 ]
 
+const WALLPAPERS = [
+  { label: 'Galaxie', url: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=200&q=70' },
+  { label: 'Aurore boréale', url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=200&q=70' },
+  { label: 'Forêt', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=200&q=70' },
+  { label: 'Océan', url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=200&q=70' },
+  { label: 'Montagne', url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=200&q=70' },
+  { label: 'Coucher de soleil', url: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=200&q=70' },
+  { label: 'Tableau noir', url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=200&q=70' },
+  { label: 'Bois', url: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=200&q=70' },
+  { label: 'Nuages', url: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?w=200&q=70' },
+  { label: 'Automne', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=70' },
+  { label: 'Abstrait bleu', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200&q=70' },
+  { label: 'Aquarelle', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1920&q=80', thumb: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=200&q=70' },
+]
+
 const TEXT_COLORS = [
   '#ffffff', '#f1f5f9', '#fde68a', '#86efac', '#93c5fd',
   '#f9a8d4', '#000000', '#1e293b',
@@ -590,24 +605,46 @@ export default function WhiteboardCanvas({ initialPages }: Props) {
             <Palette className="h-4 w-4" />Fond
           </button>
           {showBgPanel && (
-            <div className="absolute top-full left-0 mt-1.5 z-50 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3">
-              <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Couleur</p>
-              <div className="flex flex-wrap gap-2">
-                {BG_PRESETS.map(c => (
-                  <button key={c} onClick={() => updateActivePage({ background: { type: 'color', value: c } })}
-                    className={`h-7 w-7 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${bg.type === 'color' && bg.value === c ? 'border-white scale-110' : 'border-transparent'}`}
-                    style={{ backgroundColor: c }} />
+            <div className="absolute top-full left-0 mt-1.5 z-50 w-72 rounded-xl bg-slate-800 border border-white/10 shadow-2xl p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+              {/* Wallpapers */}
+              <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Fonds d'écran</p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {WALLPAPERS.map(w => (
+                  <button key={w.url}
+                    onClick={() => updateActivePage({ background: { type: 'image', value: w.url } })}
+                    className={`relative rounded-lg overflow-hidden transition-all hover:scale-105 ${bg.type === 'image' && bg.value === w.url ? 'ring-2 ring-white' : 'ring-1 ring-white/10 hover:ring-white/40'}`}
+                    title={w.label}
+                  >
+                    <div className="w-full" style={{ paddingBottom: '56%' }}>
+                      <img src={w.thumb} alt={w.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/50 px-1 py-0.5">
+                      <span className="text-white/80 text-[9px] truncate block">{w.label}</span>
+                    </div>
+                  </button>
                 ))}
-                <input type="color" value={bg.type === 'color' ? bg.value : '#1e1b4b'}
-                  onChange={e => updateActivePage({ background: { type: 'color', value: e.target.value } })}
-                  className="h-7 w-7 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50" />
               </div>
+              {/* Couleurs */}
               <div className="border-t border-white/10 pt-2">
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Image</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Couleur unie</p>
+                <div className="flex flex-wrap gap-2">
+                  {BG_PRESETS.map(c => (
+                    <button key={c} onClick={() => updateActivePage({ background: { type: 'color', value: c } })}
+                      className={`h-7 w-7 rounded-lg border-2 transition-transform hover:scale-110 shadow-sm ${bg.type === 'color' && bg.value === c ? 'border-white scale-110' : 'border-transparent'}`}
+                      style={{ backgroundColor: c }} />
+                  ))}
+                  <input type="color" value={bg.type === 'color' ? bg.value : '#1e1b4b'}
+                    onChange={e => updateActivePage({ background: { type: 'color', value: e.target.value } })}
+                    className="h-7 w-7 rounded-lg cursor-pointer border-2 border-transparent hover:border-white/50" title="Couleur personnalisée" />
+                </div>
+              </div>
+              {/* Image personnalisée */}
+              <div className="border-t border-white/10 pt-2">
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Image personnalisée</p>
                 <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgFile} />
                 <button onClick={() => bgFileRef.current?.click()}
                   className="w-full rounded-lg border border-dashed border-white/30 py-2 text-xs text-white/70 hover:border-white/60 hover:text-white transition-colors">
-                  Choisir une image
+                  Choisir depuis mon ordinateur
                 </button>
               </div>
             </div>
