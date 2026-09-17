@@ -216,6 +216,7 @@ function WidgetShell({ widget, selected, onSelect, onMove, onResize, onDelete, c
   return (
     <div
       onMouseDown={handleDragStart}
+      onClick={e => e.stopPropagation()}
       style={{
         position: 'absolute',
         left: `${widget.x}%`, top: `${widget.y}%`,
@@ -527,7 +528,7 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/95 border-b border-white/10 flex-shrink-0 print:hidden">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/95 border-b border-white/10 flex-shrink-0 print:hidden" onClick={e => e.stopPropagation()}>
         {/* Add widget */}
         <div className="relative">
           <button onClick={() => { setShowAddPanel(v => !v); setShowBgPanel(false) }}
@@ -664,7 +665,7 @@ export default function WhiteboardCanvas({ initialWidgets, initialBackground }: 
 
         {/* Side edit panel */}
         {selectedWidget && (
-          <div className="w-64 flex-shrink-0 bg-slate-900/95 border-l border-white/10 overflow-y-auto print:hidden">
+          <div className="w-64 flex-shrink-0 bg-slate-900/95 border-l border-white/10 overflow-y-auto print:hidden" onClick={e => e.stopPropagation()}>
             <div className="p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-white capitalize">
